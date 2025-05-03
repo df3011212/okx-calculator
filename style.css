@@ -1,0 +1,33 @@
+
+body {
+  font-family: "Microsoft JhengHei", sans-serif;
+  margin: 0;
+  padding: 1rem;
+  background-color: #fff;
+  font-size: 18px;
+}
+.section {
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.yellow { background-color: #ffd500; }
+.green { background-color: #d1f3ce; }
+label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: .5rem;
+}
+input {
+  width: 35%;
+  padding: .3rem;
+  font-size: 1rem;
+}
+.result { font-weight: bold; margin-top: .3rem; }
+#fontSizeControl {
+  margin-bottom: 1rem;
+}
+@media screen and (max-width: 600px) {
+  input { width: 50%; }
+}
