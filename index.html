@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OKX 槓桿獲利計算工具</title>
-  <meta name="description" content="OKX 槓桿獲利計算工具 - 根據本金、保證金比例與止損參數，快速計算槓桿倍數、總持倉與預估獲利。支援自定義視覺字體大小與進階風險參數。">
   <link rel="manifest" href="manifest.json">
   <style>
     * {
@@ -114,19 +113,19 @@
       const profitPct = parseFloat(document.getElementById("profitPct").value) / 100;
 
       const margin = Math.round(capital * marginRatio);
-      const leverage = (capital * marginRatio * stoplossRatio) === 0 ? 0 : Math.round(maxLoss / (capital * marginRatio * stoplossRatio));
+      const leverageRaw = (capital * marginRatio * stoplossRatio) === 0 ? 0 : maxLoss / (capital * marginRatio * stoplossRatio);
+      const leverage = Math.floor(leverageRaw * 1000) / 1000;
       const position = Math.round(margin * leverage);
       const leverageProfit = Math.round(leverage * profitPct * 100);
       const finalProfit = Math.round(leverage * margin * profitPct);
 
       document.getElementById("marginResult").textContent = `${margin}`;
-      document.getElementById("leverage").textContent = `${leverage}`;
+      document.getElementById("leverage").textContent = `${Math.round(leverage)}`;
       document.getElementById("position").textContent = `${position}`;
       document.getElementById("leverageProfit").textContent = `${leverageProfit}`;
       document.getElementById("finalProfit").textContent = `${finalProfit}`;
     }
 
-    // Local visit count storage
     const visitKey = 'okx-visit-count';
     let count = parseInt(localStorage.getItem(visitKey) || '0', 10);
     count++;
