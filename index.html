@@ -77,18 +77,18 @@
 
     <div class="section yellow">
       <h2>限定全倉使用</h2>
-      <label>本金 USDT <input id="capital" type="number" value="1000"></label>
+      <label>本金 USDT <input id="capital" type="number" value="2552"></label>
       <label>保證金比例 (%) <input id="marginRatio" type="number" value="5"></label>
-      <label>止損比例 (%) <input id="stoploss" type="number" value="6"></label>
-      <label>最大虧損 USDT <input id="maxLoss" type="number" value="22"></label>
+      <label>止損比例 (%) <input id="stoploss" type="number" value="8.21"></label>
+      <label>最大虧損 USDT <input id="maxLoss" type="number" value="500"></label>
       <div class="result">保證金：<span id="marginResult"></span> USDT</div>
       <div class="result">槓桿倍數：<span id="leverage"></span> 倍</div>
-      <div class="result">總持倉量：<span id="position"></span> USDT</div>
+      <div class="result">總持倉量：<span id="position"></span></div>
     </div>
 
     <div class="section green">
       <h2>全倉獲利計算</h2>
-      <label>預估獲利 (%) <input id="profitPct" type="number" value="50"></label>
+      <label>預估獲利 (%) <input id="profitPct" type="number" value="30"></label>
       <div class="result">槓桿獲利 %：<span id="leverageProfit"></span> %</div>
       <div class="result">最終獲利：<span id="finalProfit"></span> USDT</div>
     </div>
@@ -112,16 +112,19 @@
       const maxLoss = parseFloat(document.getElementById("maxLoss").value);
       const profitPct = parseFloat(document.getElementById("profitPct").value) / 100;
 
-      const margin = Math.round(capital * marginRatio);
-      const leverageRaw = (capital * marginRatio * stoplossRatio) === 0 ? 0 : maxLoss / (capital * marginRatio * stoplossRatio);
-      const leverage = Math.floor(leverageRaw * 1000) / 1000;
-      const position = Math.round(margin * leverage);
+      const marginRaw = capital * marginRatio;
+      const margin = Math.round(marginRaw); // 顯示用
+      const leverageRaw = (marginRaw * stoplossRatio) === 0 ? 0 : maxLoss / (marginRaw * stoplossRatio);
+      const leverage = Math.round(leverageRaw * 100000) / 100000;
+      const position = Math.round(marginRaw * leverage); // 使用原始 marginRaw 計算 ✅
+
       const leverageProfit = Math.round(leverage * profitPct * 100);
-      const finalProfit = Math.round(leverage * margin * profitPct);
+      const finalProfit = Math.round(leverage * marginRaw * profitPct);  // ← 用原始 marginRaw ✅
+
 
       document.getElementById("marginResult").textContent = `${margin}`;
       document.getElementById("leverage").textContent = `${Math.round(leverage)}`;
-      document.getElementById("position").textContent = `${position}`;
+      document.getElementById("position").textContent = `$${position.toLocaleString()} USDT`;
       document.getElementById("leverageProfit").textContent = `${leverageProfit}`;
       document.getElementById("finalProfit").textContent = `${finalProfit}`;
     }
