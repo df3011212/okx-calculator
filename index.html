@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>OKX 槓桿獲利計算工具</title>
   <style>
-    
     * { box-sizing: border-box }
     body {
       font-family: "Microsoft JhengHei","Noto Sans TC",sans-serif;
@@ -23,10 +22,22 @@
       width:100%; padding:14px; font-size:18px;
       margin-top:5px; border:1px solid #ccc; border-radius:12px;
     }
-    .result {
-      margin-top:15px; font-weight:bold;
-      background:rgba(255,255,255,0.5); padding:10px 12px;
-      border-radius:10px;
+    /* 新：兩欄網格結果區 */
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .result-item {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      color: #333;
+    }
+    #saveBtn {
+      margin-top: 20px;
     }
     button {
       margin-top:10px; padding:10px 14px; font-size:16px;
@@ -43,7 +54,7 @@
       padding:12px 16px; font-size:16px; background:#ffc107; color:#000;
       border:none; border-radius:30px; box-shadow:0 4px 12px rgba(0,0,0,0.2);
     }
-    /* ─── 历史记录卡片样式 ─── */
+    /* ─── 歷史紀錄卡片樣式 ─── */
     #historyList .history-entry {
       background: #ddd;
       border-radius: 8px;
@@ -86,6 +97,7 @@
   <div class="container">
     <div class="section yellow">
       <h2>開單速算表</h2>
+
       <label>選擇幣種
         <input id="symbolInput" list="symbolList"/>
         <datalist id="symbolList"></datalist>
@@ -106,26 +118,36 @@
       <label>最大虧損 USDT
         <input id="maxLoss" type="number" value="300"/>
       </label>
-      <div class="result">
-        槓桿倍數：<span id="leverage"></span> 倍　
-        總持倉量：<span id="position"></span>
+
+      <!-- 新：兩欄結果網格 -->
+      <div class="results-grid">
+        <div class="result-item">
+          槓桿倍數：<span id="leverage"></span> 倍
+        </div>
+        <div class="result-item">
+          總持倉量：<span id="position"></span>
+        </div>
+        <div class="result-item">
+          做多 成本：約 <span id="longMargin"></span> USDT
+        </div>
+        <div class="result-item">
+          做空 成本：約 <span id="shortMargin"></span> USDT
+        </div>
+        <div class="result-item">
+          剩餘可用資金：<span id="available"></span> USDT
+        </div>
+        <div class="result-item">
+          維持保證金率：<span id="maintMarginRatio"></span>%
+        </div>
+        <div class="result-item">
+          預估強平價格：<span id="liqPrice"></span> USDT
+        </div>
       </div>
-      <div class="result">
-        做多 成本：約 <span id="longMargin"></span> USDT　
-        做空 成本：約 <span id="shortMargin"></span> USDT
-      </div>
-      <div class="result">
-        剩餘可用資金：<span id="available"></span> USDT
-      </div>
-      <div class="result">
-        維持保證金率：<span id="maintMarginRatio"></span>%
-      </div>
-      <div class="result">
-        預估強平價格：<span id="liqPrice"></span> USDT
-      </div>
+
       <button id="saveBtn">💾 儲存紀錄</button>
     </div>
   </div>
+
   <button id="toggleHistoryBtn">📚 書籤</button>
   <div id="historySidebar">
     <h3>📖 書籤紀錄</h3>
@@ -213,35 +235,43 @@
   
     // 計算 & 更新畫面
     function calculate() {
-      const cap = +document.getElementById("capital").value;
-      const mr  = +document.getElementById("marginRatio").value / 100;
-      const sr  = +document.getElementById("stoploss").value / 100;
-      const ml  = +document.getElementById("maxLoss").value;
-      const ep  = +document.getElementById("entryPrice").value;
-  
-      // Excel 流程
-      const B3 = cap * mr;
-      const B4 = ml / (cap * mr * sr);
-      const pos= Math.round(B3 * B4);
-  
-      document.getElementById("leverage").textContent = Math.round(B4);
-      document.getElementById("position").textContent = `$${pos.toLocaleString()} USDT`;
-  
-      const longM = (pos / B4) * 1.0188;
-      const shortM= (pos / B4) * 1.00125;
-      const avail = Math.round((cap - longM) * 100) / 100;
-      const liqP  = B4>0
-                   ? Math.round((ep * (1 - 1/B4)) * 100000)/100000
-                   : 0;
-      const mReq  = pos * 0.00803;
-      const mRat  = mReq>0 ? (longM/mReq)*100 : 0;
-  
-      document.getElementById("longMargin").textContent       = longM.toFixed(2);
-      document.getElementById("shortMargin").textContent      = shortM.toFixed(2);
-      document.getElementById("available").textContent        = avail;
-      document.getElementById("liqPrice").textContent         = liqP;
-      document.getElementById("maintMarginRatio").textContent = mRat.toFixed(2);
+      const cap           = parseFloat(document.getElementById("capital").value);
+      const marginRatio   = parseFloat(document.getElementById("marginRatio").value) / 100;
+      const stoplossRatio = parseFloat(document.getElementById("stoploss").value)    / 100;
+      const maxLoss       = parseFloat(document.getElementById("maxLoss").value);
+      const entryPrice    = parseFloat(document.getElementById("entryPrice").value);
+
+      // 1) B3 = 本金 × 保證金比例
+      const B3 = cap * marginRatio;
+
+      // 2) B4 = 最大虧損 / (B3 × 止損比例)
+      const B4 = maxLoss / (B3 * stoplossRatio);
+
+      // 3) 槓桿顯示四捨五入
+      const leverageDisplay = Math.round(B4);
+      document.getElementById("leverage").textContent = leverageDisplay;
+
+      // 4) 總持倉 = B3 × B4，再四捨五入
+      const position = Math.round(B3 * B4);
+      document.getElementById("position").textContent = `$${position.toLocaleString()} USDT`;
+
+      // 後續一律用這個 position & B4 做後面計算
+      const longMargin = (position / B4) * 1.0188;
+      const shortMargin= (position / B4) * 1.00125;
+      const available  = Math.round((cap - longMargin) * 100) / 100;
+      const liqPrice   = B4 > 0
+                        ? Math.round((entryPrice * (1 - 1 / B4)) * 100000) / 100000
+                        : 0;
+      const maintReq   = position * 0.00803;
+      const maintRate  = maintReq > 0 ? (longMargin / maintReq) * 100 : 0;
+
+      document.getElementById("longMargin").textContent       = longMargin.toFixed(2);
+      document.getElementById("shortMargin").textContent      = shortMargin.toFixed(2);
+      document.getElementById("available").textContent        = available;
+      document.getElementById("liqPrice").textContent         = liqPrice;
+      document.getElementById("maintMarginRatio").textContent = maintRate.toFixed(2);
     }
+
   
     // 書籤功能
     function saveToHistory() {
