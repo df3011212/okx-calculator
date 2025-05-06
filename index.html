@@ -1,95 +1,46 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>OKX 槓桿獲利計算工具</title>
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box }
     body {
-      font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif;
-      font-size: 18px;
-      padding: 20px;
-      margin: 0;
-      background: #f0f2f5;
-      color: #333;
+      font-family: "Microsoft JhengHei","Noto Sans TC",sans-serif;
+      font-size: 18px; padding: 20px; margin: 0;
+      background: #f0f2f5; color: #333;
     }
-    .container {
-      max-width: 800px;
-      margin: auto;
-    }
+    .container { max-width:800px; margin:auto }
     .section {
-      padding: 20px;
-      border-radius: 20px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding:20px; border-radius:20px; margin-bottom:30px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
     }
-    .yellow {
-      background: linear-gradient(to bottom right, #ffe066, #ffd700);
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: 600;
-    }
+    .yellow { background:linear-gradient(to bottom right,#ffe066,#ffd700) }
+    label { display:block; margin-top:15px; font-weight:600 }
     input[type="number"], input[list], select {
-      width: 100%;
-      padding: 14px;
-      font-size: 18px;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 12px;
+      width:100%; padding:14px; font-size:18px;
+      margin-top:5px; border:1px solid #ccc; border-radius:12px;
     }
     .result {
-      margin-top: 15px;
-      font-weight: bold;
-      background-color: rgba(255, 255, 255, 0.5);
-      padding: 10px 12px;
-      border-radius: 10px;
+      margin-top:15px; font-weight:bold;
+      background:rgba(255,255,255,0.5); padding:10px 12px;
+      border-radius:10px;
     }
     button {
-      margin-top: 10px;
-      padding: 10px 14px;
-      font-size: 16px;
-      border: none;
-      border-radius: 6px;
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-    .section button.save {
-      background-color: #28a745;
-    }
-    small {
-      font-size: 14px;
-      color: #666;
+      margin-top:10px; padding:10px 14px; font-size:16px;
+      border:none; border-radius:6px; background:#007bff;
+      color:#fff; cursor:pointer;
     }
     #historySidebar {
-      position: fixed;
-      top: 0;
-      right: -350px;
-      width: 320px;
-      height: 100%;
-      background-color: white;
-      box-shadow: -4px 0 10px rgba(0, 0, 0, 0.15);
-      transition: right 0.3s ease;
-      z-index: 1000;
-      padding: 20px;
-      overflow-y: auto;
+      position:fixed; top:0; right:-350px; width:320px; height:100%;
+      background:#fff; box-shadow:-4px 0 10px rgba(0,0,0,0.15);
+      transition:right .3s; z-index:1000; padding:20px; overflow-y:auto;
     }
     #toggleHistoryBtn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1001;
-      padding: 12px 16px;
-      font-size: 16px;
-      background-color: #ffc107;
-      color: black;
-      border: none;
-      border-radius: 30px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-      cursor: pointer;
+      position:fixed; bottom:20px; right:20px; z-index:1001;
+      padding:12px 16px; font-size:16px; background:#ffc107; color:#000;
+      border:none; border-radius:30px; box-shadow:0 4px 12px rgba(0,0,0,0.2);
     }
   </style>
 </head>
@@ -98,200 +49,195 @@
     <div class="section yellow">
       <h2>開單速算表</h2>
       <label>選擇幣種
-        <input id="symbolInput" list="symbolList" oninput="onSymbolInput()" />
+        <input id="symbolInput" list="symbolList"/>
         <datalist id="symbolList"></datalist>
       </label>
-      <label>本金 USDT <input id="capital" type="number" value="4326.06"></label>
-      <label>首次開倉價格（可手動修改，預設市價）
-        <input id="entryPrice" type="number" step="0.00001">
-        <button onclick="toggleMarketPrice()">使用限價</button>
+      <label>本金 USDT
+        <input id="capital" type="number" value="1658"/>
       </label>
-      <label>保證金比例 (%) <input id="marginRatio" type="number" value="50"></label>
-      <label>止損比例 (%) <input id="stoploss" type="number" value="7"></label>
-      <label>最大虧損 USDT <input id="maxLoss" type="number" value="3000"></label>
+      <label>首次開倉價格（手動/市價切換）
+        <input id="entryPrice" type="number" step="0.00001"/>
+        <button id="togglePriceBtn">使用限價</button>
+      </label>
+      <label>保證金比例 (%)
+        <input id="marginRatio" type="number" value="5"/>
+      </label>
+      <label>止損比例 (%)
+        <input id="stoploss" type="number" value="7.52"/>
+      </label>
+      <label>最大虧損 USDT
+        <input id="maxLoss" type="number" value="300"/>
+      </label>
       <div class="result">
-        槓桿倍數：<span id="leverage"></span> 倍　　總持倉量：<span id="position"></span>
+        槓桿倍數：<span id="leverage"></span> 倍　
+        總持倉量：<span id="position"></span>
       </div>
       <div class="result">
-        做多 成本：約 <span id="longMargin"></span> USDT 保證金　　
-        做空 成本：約 <span id="shortMargin"></span> USDT 保證金
-        <br><small style="font-weight: normal; color: #666;">
-          ＊保守係數略有微幅差異，不影響實際開倉判斷
-        </small>
+        做多 成本：約 <span id="longMargin"></span> USDT　
+        做空 成本：約 <span id="shortMargin"></span> USDT
       </div>
       <div class="result">
         剩餘可用資金：<span id="available"></span> USDT
-        <br><small style="font-weight: normal; color: #666;">
-          ＊保守係數略有微幅差異，不影響實際開倉判斷
-        </small>
       </div>
       <div class="result">
-        維持保證金率：<span id="maintMarginRatio">14351.61</span>% 
-        <br><small style="font-weight: normal; color: #666;">
-          ＊根據 OKX 等級最低維持保證金門檻推估
-        </small>
+        維持保證金率：<span id="maintMarginRatio"></span>%
       </div>
       <div class="result">
         預估強平價格：<span id="liqPrice"></span> USDT
-        <br><small>＊當維持保證金率極高時，OKX 不會顯示強平價格，屬於低風險倉位</small>
       </div>
-      <button onclick="saveToHistory()" style="margin-top: 20px; padding: 10px; font-size: 16px; background-color: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer;">💾 手動儲存這筆紀錄</button>
+      <button id="saveBtn">💾 儲存紀錄</button>
     </div>
   </div>
-  <button id="toggleHistoryBtn" onclick="toggleHistorySidebar()">📚 書籤</button>
+  <button id="toggleHistoryBtn">📚 書籤</button>
   <div id="historySidebar">
-    <h3 style="margin-top: 0;">📖 書籤紀錄</h3>
+    <h3>📖 書籤紀錄</h3>
     <div id="historyList"></div>
   </div>
   <script>
-    let useMarketPrice = true;
-    let currentSymbol = "OP-USDT-SWAP";
-    const HISTORY_KEY = "okx_history_v1";
+    let useMarketPrice=true, currentSymbol="OP-USDT-SWAP";
+    const HISTORY_KEY="okx_history_v1";
 
-    function toggleMarketPrice() {
-      useMarketPrice = !useMarketPrice;
-      const button = document.querySelector("button[onclick='toggleMarketPrice()']");
-      button.textContent = useMarketPrice ? "使用限價" : "使用市價";
-    }
+    document.getElementById("togglePriceBtn")
+      .addEventListener("click",()=>{
+        useMarketPrice=!useMarketPrice;
+        document.getElementById("togglePriceBtn")
+          .textContent=useMarketPrice?"使用限價":"使用市價";
+      });
 
-    function toggleHistorySidebar() {
-      const sidebar = document.getElementById("historySidebar");
-      sidebar.style.right = (sidebar.style.right === "0px") ? "-350px" : "0px";
-    }
+    document.getElementById("toggleHistoryBtn")
+      .addEventListener("click",()=>{
+        const sb=document.getElementById("historySidebar");
+        sb.style.right=sb.style.right==="0px"?"-350px":"0px";
+      });
 
-    async function fetchMarketPrice() {
-      try {
-        const res = await fetch(`https://www.okx.com/api/v5/market/ticker?instId=${currentSymbol}`);
-        const data = await res.json();
-        const price = parseFloat(data.data[0].last);
-        if (useMarketPrice && !isNaN(price)) {
-          document.getElementById("entryPrice").value = price;
+    document.querySelectorAll("input")
+      .forEach(i=>i.addEventListener("input",calculate));
+
+    document.getElementById("symbolInput")
+      .addEventListener("input",()=>{
+        const v=document.getElementById("symbolInput").value.trim();
+        if(v&&v!==currentSymbol){
+          currentSymbol=v;
+          fetchMarketPrice();
           calculate();
         }
-      } catch (e) {
-        console.warn("市價載入失敗", e);
-      }
-    }
-
-    async function loadSymbols() {
-      try {
-        const res = await fetch("https://www.okx.com/api/v5/public/instruments?instType=SWAP");
-        const data = await res.json();
-        const datalist = document.getElementById("symbolList");
-        data.data.filter(item => item.settleCcy === "USDT" && item.instId.endsWith("-SWAP"))
-          .forEach(item => {
-            const option = document.createElement("option");
-            option.value = item.instId;
-            datalist.appendChild(option);
-          });
-        document.getElementById("symbolInput").value = currentSymbol;
-      } catch (e) {
-        console.warn("無法載入幣種", e);
-      }
-    }
-
-    function onSymbolInput() {
-      const val = document.getElementById("symbolInput").value.trim();
-      if (val && val !== currentSymbol) {
-        currentSymbol = val;
-        fetchMarketPrice();
-        calculate();
-      }
-    }
-
-    function saveToHistory() {
-      const record = {
-        symbol: currentSymbol,
-        capital: parseFloat(document.getElementById("capital").value),
-        entryPrice: parseFloat(document.getElementById("entryPrice").value),
-        marginRatio: parseFloat(document.getElementById("marginRatio").value),
-        stoploss: parseFloat(document.getElementById("stoploss").value),
-        maxLoss: parseFloat(document.getElementById("maxLoss").value),
-        time: new Date().toLocaleString()
-      };
-      let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-      history.unshift(record);
-      if (history.length > 10) history = history.slice(0, 10);
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-      renderHistory();
-    }
-
-    function renderHistory() {
-      const list = document.getElementById("historyList");
-      const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-      list.innerHTML = "";
-      history.forEach((item, index) => {
-        const leverage = item.maxLoss / (item.capital * (item.marginRatio / 100) * (item.stoploss / 100));
-        const leverageDisplay = Math.round(leverage);
-        const marginRaw = item.capital * (item.marginRatio / 100);
-        const position = Math.round(marginRaw * leverage);
-        const div = document.createElement("div");
-        div.style.marginBottom = "10px";
-        div.innerHTML = `
-          <div>
-            <b>${item.symbol}</b> @ ${item.entryPrice}｜槓桿: ${leverageDisplay} 倍｜總持倉量: $${position.toLocaleString()} USDT｜${item.time}
-            <button onclick="applyHistory(${index})">套用</button>
-            <button onclick="deleteHistory(${index})">🗑刪除</button>
-          </div>
-        `;
-        list.appendChild(div);
       });
+
+    document.getElementById("saveBtn")
+      .addEventListener("click",saveToHistory);
+
+    async function loadSymbols(){
+      const res=await fetch("https://www.okx.com/api/v5/public/instruments?instType=SWAP");
+      const data=await res.json();
+      const dl=document.getElementById("symbolList");
+      data.data.filter(i=>i.settleCcy==="USDT"&&i.instId.endsWith("-SWAP"))
+        .forEach(i=>{
+          const o=document.createElement("option");
+          o.value=i.instId; dl.append(o);
+        });
+      document.getElementById("symbolInput").value=currentSymbol;
     }
 
-    function applyHistory(index) {
-      const history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-      if (history[index]) {
-        const h = history[index];
-        document.getElementById("symbolInput").value = h.symbol;
-        document.getElementById("capital").value = h.capital;
-        document.getElementById("entryPrice").value = h.entryPrice;
-        document.getElementById("marginRatio").value = h.marginRatio;
-        document.getElementById("stoploss").value = h.stoploss;
-        document.getElementById("maxLoss").value = h.maxLoss;
-        currentSymbol = h.symbol;
-        calculate();
-      }
+    async function fetchMarketPrice(){
+      try{
+        const r=await fetch(`https://www.okx.com/api/v5/market/ticker?instId=${currentSymbol}`);
+        const j=await r.json();
+        const p=parseFloat(j.data?.[0]?.last);
+        if(useMarketPrice&&!isNaN(p)){
+          document.getElementById("entryPrice").value=p;
+          calculate();
+        }
+      }catch{}
+    }
+    setInterval(fetchMarketPrice,500);
+
+    function calculate(){
+      const cap=+document.getElementById("capital").value;
+      const mr=+document.getElementById("marginRatio").value/100;
+      const sr=+document.getElementById("stoploss").value/100;
+      const ml=+document.getElementById("maxLoss").value;
+      const ep=+document.getElementById("entryPrice").value;
+
+      const B3=cap*mr;
+      const B4=ml/(cap*mr*sr);
+      const position=Math.round(B3*B4);
+
+      document.getElementById("leverage").textContent=Math.round(B4);
+      document.getElementById("position").textContent=`$${position.toLocaleString()} USDT`;
+
+      const longM=(position/B4)*1.0188;
+      const shortM=(position/B4)*1.00125;
+      document.getElementById("longMargin").textContent=longM.toFixed(2);
+      document.getElementById("shortMargin").textContent=shortM.toFixed(2);
+
+      document.getElementById("available").textContent=
+        Math.round((cap-longM)*100)/100;
+
+      document.getElementById("liqPrice").textContent=
+        B4>0?Math.round((ep*(1-1/B4))*100000)/100000:0;
+
+      const mReq=position*0.00803;
+      document.getElementById("maintMarginRatio").textContent=
+        (mReq>0?(longM/mReq)*100:0).toFixed(2);
     }
 
-    function deleteHistory(index) {
-      let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-      history.splice(index, 1);
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    function saveToHistory(){
+      const rec={
+        symbol:currentSymbol,
+        capital:+document.getElementById("capital").value,
+        entryPrice:+document.getElementById("entryPrice").value,
+        marginRatio:+document.getElementById("marginRatio").value,
+        stoploss:+document.getElementById("stoploss").value,
+        maxLoss:+document.getElementById("maxLoss").value,
+        time:new Date().toLocaleString()
+      };
+      const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
+      h.unshift(rec); if(h.length>10)h.length=10;
+      localStorage.setItem(HISTORY_KEY,JSON.stringify(h));
       renderHistory();
     }
 
-    function calculate() {
-      const capital = parseFloat(document.getElementById("capital").value);
-      const marginRatio = parseFloat(document.getElementById("marginRatio").value) / 100;
-      const stoplossRatio = parseFloat(document.getElementById("stoploss").value) / 100;
-      const maxLoss = parseFloat(document.getElementById("maxLoss").value);
-      const entryPrice = parseFloat(document.getElementById("entryPrice").value);
-      const marginRaw = capital * marginRatio;
-      const leverageRaw = (marginRaw * stoplossRatio) === 0 ? 0 : maxLoss / (marginRaw * stoplossRatio);
-      const leverageDisplay = Math.round(leverageRaw);
-      const leverage = leverageRaw;
-      const position = Math.round(marginRaw * leverage);
-      const longMargin = (position / leverage) * 1.0188;
-      const shortMargin = (position / leverage) * 1.00125;
-      const available = Math.round((capital - longMargin) * 100) / 100;
-      const liqPrice = leverage > 0 ? Math.round((entryPrice * (1 - 1 / leverage)) * 100000) / 100000 : 0;
-      const maintMarginRate = 0.00803;
-      const maintRequired = position * maintMarginRate;
-      const maintMarginRatio = maintRequired > 0 ? (longMargin / maintRequired) * 100 : 0;
-      document.getElementById("longMargin").textContent = `${longMargin.toFixed(2)}`;
-      document.getElementById("shortMargin").textContent = `${shortMargin.toFixed(2)}`;
-      document.getElementById("leverage").textContent = `${leverageDisplay}`;
-      document.getElementById("position").textContent = `$${position.toLocaleString()} USDT`;
-      document.getElementById("available").textContent = `${available}`;
-      document.getElementById("liqPrice").textContent = `${liqPrice}`;
-      document.getElementById("maintMarginRatio").textContent = `${maintMarginRatio.toFixed(2)}`;
+    function renderHistory(){
+      const lst=document.getElementById("historyList");
+      const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
+      lst.innerHTML="";
+      h.forEach((it,i)=>{
+        const lr=it.maxLoss/(it.capital*(it.marginRatio/100)*(it.stoploss/100));
+        const pos=Math.round((it.capital*(it.marginRatio/100))*lr);
+        const div=document.createElement("div");
+        div.innerHTML=`
+          <b>${it.symbol}</b> @ ${it.entryPrice}
+          ｜槓桿: ${Math.round(lr)} 倍
+          ｜總持倉量: $${pos.toLocaleString()} USDT
+          ｜${it.time}
+          <button data-i="${i}" class="app">套用</button>
+          <button data-i="${i}" class="del">刪除</button>`;
+        lst.append(div);
+      });
+      lst.querySelectorAll(".app")
+         .forEach(b=>b.addEventListener("click",e=>applyHistory(+e.target.dataset.i)));
+      lst.querySelectorAll(".del")
+         .forEach(b=>b.addEventListener("click",e=>deleteHistory(+e.target.dataset.i)));
+    }
+
+    function applyHistory(i){
+      const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]"),it=h[i];
+      if(!it)return;
+      document.getElementById("symbolInput").value=it.symbol;
+      ["capital","entryPrice","marginRatio","stoploss","maxLoss"]
+        .forEach(id=>document.getElementById(id).value=it[id]);
+      currentSymbol=it.symbol; calculate();
+    }
+
+    function deleteHistory(i){
+      const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
+      h.splice(i,1); localStorage.setItem(HISTORY_KEY,JSON.stringify(h));
+      renderHistory();
     }
 
     loadSymbols();
-    setInterval(fetchMarketPrice, 200);
-    const inputs = document.querySelectorAll("input");
-    inputs.forEach(input => input.addEventListener("input", calculate));
     renderHistory();
+    calculate();
   </script>
 </body>
 </html>
