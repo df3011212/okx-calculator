@@ -4,237 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>OKX 槓桿獲利計算工具</title>
-  <style>
-    * { box-sizing: border-box }
-    body {
-      font-family: "Microsoft JhengHei","Noto Sans TC",sans-serif;
-      font-size: 18px; padding: 20px; margin: 0;
-      background: #f0f2f5; color: #333;
-    }
-    .container { max-width:800px; margin:auto }
-    .section {
-      padding:20px; border-radius:20px; margin-bottom:30px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.1);
-    }
-    .yellow { background:linear-gradient(to bottom right,#ffe066,#ffd700) }
-    label { display:block; margin-top:15px; font-weight:600 }
-    input[type="number"], input[list], select {
-      width:100%; padding:14px; font-size:18px;
-      margin-top:5px; border:1px solid #ccc; border-radius:12px;
-    }
-    /* 新：兩欄網格結果區 */
-    .results-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .result-item {
-      background: rgba(255, 255, 255, 0.8);
-      padding: 12px;
-      border-radius: 12px;
-      font-weight: bold;
-      color: #333;
-    }
-    #saveBtn {
-      margin-top: 20px;
-    }
-    button {
-      margin-top:10px; padding:10px 14px; font-size:16px;
-      border:none; border-radius:6px; background:#007bff;
-      color:#fff; cursor:pointer;
-    }
-    #historySidebar {
-      position:fixed; top:0; right:-350px; width:320px; height:100%;
-      background:#fff; box-shadow:-4px 0 10px rgba(0,0,0,0.15);
-      transition:right .3s; z-index:1000; padding:20px; overflow-y:auto;
-    }
-
-    /* ─── 歷史紀錄卡片樣式 ─── */
-    #historyList .history-entry {
-      background: #ddd;
-      border-radius: 8px;
-      padding: 8px;
-      margin-bottom: 12px;
-    }
-    #historyList .history-entry .history-info {
-      background: #fff;
-      border-radius: 4px;
-      padding: 8px;
-      color: #000;
-      line-height: 1.4;
-    }
-    #historyList .history-entry .history-time {
-      margin-top: 6px;
-      font-size: 0.9em;
-      color: #555;
-    }
-    #historyList .history-entry .history-actions {
-      text-align: right;
-      margin-top: 8px;
-    }
-    #historyList .history-entry .history-actions button {
-      margin-left: 6px;
-      padding: 4px 8px;
-      font-size: 14px;
-      border-radius: 4px;
-    }
-    #historyList .history-entry .history-actions .app {
-      background-color: #007bff;
-      color: #fff;
-    }
-    #historyList .history-entry .history-actions .del {
-      background-color: #dc3545;
-      color: #fff;
-    }
-    /* 功能按钮：左下停靠 */
-    #newFeatureBtn {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;    /* 改成从左边 20px */
-      right: auto;   /* 清除之前的 right 设置 */
-      z-index: 1000;
-      padding: 18px 22px;
-      font-size: 20px;
-      background: #17a2b8;
-      color: #fff;
-      border: none;
-      border-radius: 30px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-    /* 功能按钮：左下停靠結束 */
-
-    /* 書籤按钮保持右下 */
-    #toggleHistoryBtn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      left: auto;
-      z-index: 1001;
-      padding: 18px 22px;
-      font-size: 20px;
-      background: #ffc107;
-      color: #000;
-      border: none;
-      border-radius: 30px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-     /* 書籤按钮保持右下結束 */
-
-    /* 功能選單面板 */
-    #featureMenu {
-      position: fixed;
-      bottom: 80px;      /* 在按鈕上方 */
-      left: 20px;        /* 靠左對齊 */
-      width: 240px;
-      background: #17a2b8;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      padding: 10px;
-      z-index: 1002;
-      transition: opacity 0.2s, visibility 0.2s;
-    }
-    .feature-menu-hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-    .feature-menu-visible {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    /* 2×2 按鈕排版 */
-    .feature-menu-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .feature-menu-grid button {
-      padding: 8px;
-      font-size: 14px;
-      border: none;
-      border-radius: 6px;
-      background: #fff;
-      color: #17a2b8;
-      cursor: pointer;
-    }
-        /* 功能選單面板結束 */
-
-
-    /* 功能選單 面板置中 */
-    /* 功能选单 卡片 */
-    #featureMenu {
-      position: fixed;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 320px;
-      background: #00a3c4;              /* 主题色 */
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-      padding: 0;                       /* 由内部分段 */
-      z-index: 1002;
-      transition: opacity 0.2s ease, visibility 0.2s ease;
-    }
-
-    /* 隐藏/显示 */
-    .feature-menu-hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-    .feature-menu-visible {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    /* 关闭按钮 */
-    .feature-close {
-      position: absolute;
-      top: 8px; right: 12px;
-      border: none;
-      background: transparent;
-      font-size: 20px;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    /* 标题栏 */
-    #featureMenu .feature-title {
-      padding: 16px;
-      font-size: 20px;
-      font-weight: 600;
-      text-align: center;
-      color: #fff;
-      border-bottom: 1px solid rgba(255,255,255,0.3);
-    }
-
-    /* 按钮网格 */
-    .feature-menu-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      padding: 16px;
-    }
-
-    /* 各功能按钮 */
-    .feature-menu-grid button {
-      background: #fff;
-      color: #00a3c4;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 8px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background-color 0.2s;
-    }
-    .feature-menu-grid button:hover {
-      background: #f0f0f0;
-    }
-
-
-    /* 功能選單 面板置中結束 */
-
-  </style>
+  <!-- 你的 CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
@@ -245,323 +16,74 @@
         <input id="symbolInput" list="symbolList"/>
         <datalist id="symbolList"></datalist>
       </label>
+
       <label>本金 USDT
         <input id="capital" type="number" value="1658"/>
       </label>
+
       <label>首次開倉價格（手動/市價切換）
         <input id="entryPrice" type="number" step="0.00001"/>
         <button id="togglePriceBtn">使用限價</button>
       </label>
+
       <label>保證金比例 (%)
         <input id="marginRatio" type="number" value="5"/>
       </label>
+
       <label>止損比例 (%)
         <input id="stoploss" type="number" value="7.52"/>
       </label>
+
       <label>最大虧損 USDT
         <input id="maxLoss" type="number" value="300"/>
       </label>
 
-      <!-- 新：兩欄結果網格 -->
+      <!-- 兩欄結果網格 -->
       <div class="results-grid">
-        <div class="result-item">
-          槓桿倍數：<span id="leverage"></span> 倍
-        </div>
-        <div class="result-item">
-          總持倉量：<span id="position"></span>
-        </div>
-        <div class="result-item">
-          做多 成本：約 <span id="longMargin"></span> USDT
-        </div>
-        <div class="result-item">
-          做空 成本：約 <span id="shortMargin"></span> USDT
-        </div>
-        <div class="result-item">
-          剩餘可用資金：<span id="available"></span> USDT
-        </div>
-        <div class="result-item">
-          維持保證金率：<span id="maintMarginRatio"></span>%
-        </div>
-        <div class="result-item">
-          預估強平價格：<span id="liqPrice"></span> USDT
-        </div>
+        <div class="result-item">槓桿倍數：<span id="leverage"></span> 倍</div>
+        <div class="result-item">總持倉量：<span id="position"></span></div>
+        <div class="result-item">做多 成本：約 <span id="longMargin"></span> USDT</div>
+        <div class="result-item">做空 成本：約 <span id="shortMargin"></span> USDT</div>
+        <div class="result-item">剩餘可用資金：<span id="available"></span> USDT</div>
+        <div class="result-item">維持保證金率：<span id="maintMarginRatio"></span>%</div>
+        <div class="result-item">預估強平價格：<span id="liqPrice"></span> USDT</div>
       </div>
 
       <button id="saveBtn">💾 儲存紀錄</button>
     </div>
   </div>
 
-  <button id="toggleHistoryBtn">📚 書籤</button>
+  <!-- 浮動按鈕：功能 & 書籤 -->
   <button id="newFeatureBtn">🔧 功能</button>
+  <button id="toggleHistoryBtn">📚 書籤</button>
+
+  <!-- 書籤側欄 -->
   <div id="historySidebar">
     <h3>📖 書籤紀錄</h3>
     <div id="historyList"></div>
   </div>
 
-    <!-- 功能选单 -->
-    <div id="featureMenu" class="feature-menu-hidden">
-      <button id="featureCloseBtn" class="feature-close">×</button>
-      <div class="feature-title">功能選單</div>
-      <div class="feature-menu-grid">
-        <button id="manualAvgBtn">手動均價計算</button>
-        <button id="specifiedAvgBtn">指定均價計算</button>
-        <button id="quickRevengeBtn">反擊速算表</button>
-        <button id="advRevengeBtn">高級反擊速算表</button>
-      </div>
+  <!-- 功能選單 -->
+  <div id="featureMenu" class="feature-menu-hidden">
+    <button id="featureCloseBtn" class="feature-close">×</button>
+    <div class="feature-title">功能選單</div>
+    <div class="feature-menu-grid">
+      <button data-feature="manualAvg">手動均價計算</button>
+      <button data-feature="specifiedAvg">指定均價計算</button>
+      <button data-feature="quickRevenge">反擊速算表</button>
+      <button data-feature="advRevenge">高級反擊速算表</button>
     </div>
-    <!-- 功能选单結束 -->
-  <script>
-    let useMarketPrice = true;
-    let currentSymbolInst = "OP-USDT-SWAP";  // 真正給 OKX API 的 instId
-    const HISTORY_KEY = "okx_history_v1";
-  
-    // InstID ↔ 畫面顯示的 Symbol 轉換
-    function instIdToDisplay(id) {
-      // e.g. "OP-USDT-SWAP" → ["OP","USDT","SWAP"] → "OPUSDT.P"
-      const p = id.split("-");
-      return p[0] + p[1] + ".P";
-    }
-    function displayToInstId(d) {
-      // e.g. "OPUSDT.P" → "OP-USDT-SWAP"
-      if (!d.endsWith(".P")) return d;
-      const code = d.slice(0, -2);      // "OPUSDT"
-      const base = code.slice(0, -4);   // "OP"
-      const quote= code.slice(-4);      // "USDT"
-      return `${base}-${quote}-SWAP`;
-    }
-  
-    // 元素綁定
-    document.getElementById("togglePriceBtn")
-      .addEventListener("click", () => {
-        useMarketPrice = !useMarketPrice;
-        document.getElementById("togglePriceBtn").textContent =
-          useMarketPrice ? "使用限價" : "使用市價";
-      });
-  
-    document.getElementById("toggleHistoryBtn")
-      .addEventListener("click", () => {
-        const sb = document.getElementById("historySidebar");
-        sb.style.right = sb.style.right === "0px" ? "-350px" : "0px";
-      });
-  
-    document.getElementById("symbolInput")
-      .addEventListener("input", () => {
-        const disp = document.getElementById("symbolInput").value.trim();
-        const inst = displayToInstId(disp);
-        if (inst !== currentSymbolInst) {
-          currentSymbolInst = inst;
-          fetchMarketPrice();
-          calculate();
-        }
-      });
-  
-    document.querySelectorAll("input")
-      .forEach(i => i.addEventListener("input", calculate));
-  
-    document.getElementById("saveBtn")
-      .addEventListener("click", saveToHistory);
-  
-    // 載入所有 USDT 永續合約並顯示成 .P 格式
-    async function loadSymbols() {
-      const res = await fetch("https://www.okx.com/api/v5/public/instruments?instType=SWAP");
-      const data= await res.json();
-      const dl  = document.getElementById("symbolList");
-      data.data
-        .filter(i=> i.settleCcy==="USDT" && i.instId.endsWith("-SWAP"))
-        .forEach(i=>{
-          const opt    = document.createElement("option");
-          opt.value    = instIdToDisplay(i.instId);
-          dl.append(opt);
-        });
-      document.getElementById("symbolInput").value = instIdToDisplay(currentSymbolInst);
-    }
-  
-    // 市價輪詢
-    async function fetchMarketPrice() {
-      try {
-        const r = await fetch(`https://www.okx.com/api/v5/market/ticker?instId=${currentSymbolInst}`);
-        const j = await r.json();
-        const p = parseFloat(j.data?.[0]?.last);
-        if (useMarketPrice && !isNaN(p)) {
-          document.getElementById("entryPrice").value = p;
-          calculate();
-        }
-      } catch {}
-    }
-    setInterval(fetchMarketPrice, 500);
-  
-    // 計算 & 更新畫面
-    function calculate() {
-      const cap           = parseFloat(document.getElementById("capital").value);
-      const marginRatio   = parseFloat(document.getElementById("marginRatio").value) / 100;
-      const stoplossRatio = parseFloat(document.getElementById("stoploss").value)    / 100;
-      const maxLoss       = parseFloat(document.getElementById("maxLoss").value);
-      const entryPrice    = parseFloat(document.getElementById("entryPrice").value);
+    <div id="featureContent" style="display:none;"></div>
+  </div>
 
-      // 1) B3 = 本金 × 保證金比例
-      const B3 = cap * marginRatio;
-
-      // 2) B4 = 最大虧損 / (B3 × 止損比例)
-      const B4 = maxLoss / (B3 * stoplossRatio);
-
-      // 3) 槓桿顯示四捨五入
-      const leverageDisplay = Math.round(B4);
-      document.getElementById("leverage").textContent = leverageDisplay;
-
-      // 4) 總持倉 = B3 × B4，再四捨五入
-      const position = Math.round(B3 * B4);
-      document.getElementById("position").textContent = `$${position.toLocaleString()} USDT`;
-
-      // 後續一律用這個 position & B4 做後面計算
-      const longMargin = (position / B4) * 1.0188;
-      const shortMargin= (position / B4) * 1.00125;
-      const available  = Math.round((cap - longMargin) * 100) / 100;
-      const liqPrice   = B4 > 0
-                        ? Math.round((entryPrice * (1 - 1 / B4)) * 100000) / 100000
-                        : 0;
-      const maintReq   = position * 0.00803;
-      const maintRate  = maintReq > 0 ? (longMargin / maintReq) * 100 : 0;
-
-      document.getElementById("longMargin").textContent       = longMargin.toFixed(2);
-      document.getElementById("shortMargin").textContent      = shortMargin.toFixed(2);
-      document.getElementById("available").textContent        = available;
-      document.getElementById("liqPrice").textContent         = liqPrice;
-      document.getElementById("maintMarginRatio").textContent = maintRate.toFixed(2);
-    }
-
-  
-    // 書籤功能
-    function saveToHistory() {
-      // 1. 準備新紀錄
-      const rec = {
-        symbol:     instIdToDisplay(currentSymbolInst),
-        capital:    +document.getElementById("capital").value,
-        entryPrice: +document.getElementById("entryPrice").value,
-        marginRatio:+document.getElementById("marginRatio").value,
-        stoploss:   +document.getElementById("stoploss").value,
-        maxLoss:    +document.getElementById("maxLoss").value,
-        time:       new Date().toLocaleString()
-      };
-
-      // 2. 讀出歷史
-      const h = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-
-      // 3. 防呆：如果最新一筆與 rec 相同，就跳過並顯示提示
-      const last = h[0];
-      if (last
-          && last.symbol     === rec.symbol
-          && last.capital    === rec.capital
-          && last.marginRatio=== rec.marginRatio
-          && last.stoploss   === rec.stoploss
-          && last.maxLoss    === rec.maxLoss) {
-        showNotice("❌ 已存在相同紀錄，不重複儲存");
-        return;
-      }
-
-      // 4. 真正寫入
-      h.unshift(rec);
-      if (h.length > 10) h.length = 10;
-      localStorage.setItem(HISTORY_KEY, JSON.stringify(h));
-      renderHistory();
-
-      // 5. 儲存成功提示
-      showNotice("✅ 保存成功，請到右下角書籤查收");
-    }
-
-    // 輔助：右下角浮窗提示
-    function showNotice(text) {
-      const notice = document.createElement("div");
-      notice.textContent = text;
-      Object.assign(notice.style, {
-        position:    "fixed",
-        bottom:      "20px",
-        right:       "20px",
-        padding:     "10px 14px",
-        background:  "#333",
-        color:       "#fff",
-        borderRadius:"6px",
-        boxShadow:   "0 2px 6px rgba(0,0,0,0.3)",
-        zIndex:      2000,
-        fontSize:    "14px",
-      });
-      document.body.appendChild(notice);
-      setTimeout(() => notice.remove(), 3000);
-    }
-
-
-    //其他功能
-    function renderHistory() {
-  const lst = document.getElementById("historyList");
-  const h   = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-  lst.innerHTML = "";
-  h.forEach((it, i) => {
-    const lr  = it.maxLoss / (it.capital * (it.marginRatio/100) * (it.stoploss/100));
-    const pos = Math.round((it.capital * (it.marginRatio/100)) * Math.floor(lr));
-    // 创建容器
-    const entry = document.createElement("div");
-    entry.className = "history-entry";
-    entry.innerHTML = `
-      <div class="history-info">
-        <b>${it.symbol}</b> @ ${it.entryPrice}
-        ｜槓桿: ${Math.floor(lr)} 倍
-        ｜總持倉量: $${pos.toLocaleString()} USDT
-        <div class="history-time">${it.time}</div>
-      </div>
-      <div class="history-actions">
-        <button data-i="${i}" class="app">套用</button>
-        <button data-i="${i}" class="del">刪除</button>
-      </div>
-    `;
-    lst.appendChild(entry);
-  });
-
-  // 绑定按钮事件
-  lst.querySelectorAll(".app")
-     .forEach(b => b.addEventListener("click", e => applyHistory(+e.target.dataset.i)));
-  lst.querySelectorAll(".del")
-     .forEach(b => b.addEventListener("click", e => deleteHistory(+e.target.dataset.i)));
-}
-
-    function applyHistory(i) {
-      const h = JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
-      const it = h[i]; if(!it) return;
-      document.getElementById("symbolInput").value = it.symbol;
-      ["capital","entryPrice","marginRatio","stoploss","maxLoss"]
-        .forEach(id=> document.getElementById(id).value = it[id]);
-      currentSymbolInst = displayToInstId(it.symbol);
-      calculate();
-    }
-    function deleteHistory(i) {
-      const h = JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
-      h.splice(i,1);
-      localStorage.setItem(HISTORY_KEY,JSON.stringify(h));
-      renderHistory();
-    }
-  
-    // 頁面載入
-    loadSymbols();
-    renderHistory();
-    calculate();
-
-    // 切換功能選單
-    const featureBtn   = document.getElementById("newFeatureBtn");
-    const featureMenu  = document.getElementById("featureMenu");
-    const featureClose = document.getElementById("featureCloseBtn");
-
-    featureBtn.addEventListener("click", ()=>{
-      featureMenu.classList.toggle("feature-menu-visible");
-      featureMenu.classList.toggle("feature-menu-hidden");
-    });
-
-    // 关窗
-    featureClose.addEventListener("click", ()=>{
-      featureMenu.classList.add("feature-menu-hidden");
-      featureMenu.classList.remove("feature-menu-visible");
-    });
-    // 切換功能選單結束
-
-
-  </script>
-  
+  <!-- 載入各功能模組 -->
+  <script src="js/calc.js"></script>
+  <script src="js/history.js"></script>
+  <script src="js/features/manualAvg.js"></script>
+  <script src="js/features/specifiedAvg.js"></script>
+  <script src="js/features/quickRevenge.js"></script>
+  <script src="js/features/advRevenge.js"></script>
+  <script src="js/feature.js"></script>
+  <script src="js/main.js"></script>
 </body>
 </html>

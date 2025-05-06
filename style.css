@@ -1,0 +1,113 @@
+* { box-sizing: border-box }
+body {
+  font-family: "Microsoft JhengHei","Noto Sans TC",sans-serif;
+  font-size: 18px; padding: 20px; margin: 0;
+  background: #f0f2f5; color: #333;
+}
+.container { max-width:800px; margin:auto }
+.section {
+  padding:20px; border-radius:20px; margin-bottom:30px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
+}
+.yellow { background:linear-gradient(to bottom right,#ffe066,#ffd700) }
+label { display:block; margin-top:15px; font-weight:600 }
+input[type="number"], input[list], select {
+  width:100%; padding:14px; font-size:18px;
+  margin-top:5px; border:1px solid #ccc; border-radius:12px;
+}
+/* 兩欄結果網格 */
+.results-grid {
+  display:grid; grid-template-columns:repeat(2,1fr);
+  gap:10px; margin-top:20px;
+}
+.result-item {
+  background:rgba(255,255,255,0.8); padding:12px;
+  border-radius:12px; font-weight:bold; color:#333;
+}
+/* 浮動儲存按鈕 */
+#saveBtn {
+  position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+  padding:18px 24px; font-size:18px; border-radius:30px;
+  background:#28a745; color:#fff; border:none; cursor:pointer;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2); z-index:1001;
+}
+button {
+  margin-top:10px; padding:10px 14px; font-size:16px;
+  border:none; border-radius:6px; background:#007bff;
+  color:#fff; cursor:pointer;
+}
+#historySidebar {
+  position:fixed; top:0; right:-350px; width:320px; height:100%;
+  background:#fff; box-shadow:-4px 0 10px rgba(0,0,0,0.15);
+  transition:right .3s; z-index:1000; padding:20px; overflow-y:auto;
+}
+/* 歷史紀錄卡片 */
+#historyList .history-entry { background:#ddd; border-radius:8px;
+  padding:8px; margin-bottom:12px;
+}
+#historyList .history-entry .history-info {
+  background:#fff; border-radius:4px; padding:8px;
+  color:#000; line-height:1.4;
+}
+#historyList .history-entry .history-time {
+  margin-top:6px; font-size:0.9em; color:#555;
+}
+#historyList .history-entry .history-actions {
+  text-align:right; margin-top:8px;
+}
+#historyList .history-entry .history-actions button {
+  margin-left:6px; padding:4px 8px; font-size:14px;
+  border-radius:4px;
+}
+#historyList .history-entry .history-actions .app {
+  background:#007bff; color:#fff;
+}
+#historyList .history-entry .history-actions .del {
+  background:#dc3545; color:#fff;
+}
+/* 功能 & 書籤 */
+#newFeatureBtn {
+  position:fixed; bottom:20px; left:20px; z-index:1000;
+  padding:18px 22px; font-size:20px; background:#17a2b8;
+  color:#fff; border:none; border-radius:30px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+}
+#toggleHistoryBtn {
+  position:fixed; bottom:20px; right:20px; z-index:1001;
+  padding:18px 22px; font-size:20px; background:#ffc107;
+  color:#000; border:none; border-radius:30px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
+}
+/* 功能選單面板（置中） */
+#featureMenu {
+  position:fixed; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:320px; background:#00a3c4; border-radius:12px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.15);
+  padding:0; z-index:1002;
+  transition:opacity .2s ease, visibility .2s ease;
+}
+.feature-menu-hidden { opacity:0; visibility:hidden }
+.feature-menu-visible { opacity:1; visibility:visible }
+.feature-close {
+  position:absolute; top:8px; right:12px; background:transparent;
+  border:none; font-size:20px; color:#fff; cursor:pointer;
+}
+.feature-title {
+  padding:16px; font-size:20px; font-weight:600;
+  text-align:center; color:#fff;
+  border-bottom:1px solid rgba(255,255,255,0.3);
+}
+.feature-menu-grid {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:12px; padding:16px;
+}
+.feature-menu-grid button {
+  background:#fff; color:#00a3c4; border:none;
+  border-radius:6px; padding:10px 8px; font-size:14px;
+  font-weight:500; cursor:pointer;
+  transition:background-color .2s;
+}
+.feature-menu-grid button:hover {
+  background:#f0f0f0;
+}
