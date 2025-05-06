@@ -94,118 +94,142 @@
     <div id="historyList"></div>
   </div>
   <script>
-    let useMarketPrice=true, currentSymbol="OP-USDT-SWAP";
-    const HISTORY_KEY="okx_history_v1";
-
+    let useMarketPrice = true;
+    let currentSymbolInst = "OP-USDT-SWAP";  // 真正給 OKX API 的 instId
+    const HISTORY_KEY = "okx_history_v1";
+  
+    // InstID ↔ 畫面顯示的 Symbol 轉換
+    function instIdToDisplay(id) {
+      // e.g. "OP-USDT-SWAP" → ["OP","USDT","SWAP"] → "OPUSDT.P"
+      const p = id.split("-");
+      return p[0] + p[1] + ".P";
+    }
+    function displayToInstId(d) {
+      // e.g. "OPUSDT.P" → "OP-USDT-SWAP"
+      if (!d.endsWith(".P")) return d;
+      const code = d.slice(0, -2);      // "OPUSDT"
+      const base = code.slice(0, -4);   // "OP"
+      const quote= code.slice(-4);      // "USDT"
+      return `${base}-${quote}-SWAP`;
+    }
+  
+    // 元素綁定
     document.getElementById("togglePriceBtn")
-      .addEventListener("click",()=>{
-        useMarketPrice=!useMarketPrice;
-        document.getElementById("togglePriceBtn")
-          .textContent=useMarketPrice?"使用限價":"使用市價";
+      .addEventListener("click", () => {
+        useMarketPrice = !useMarketPrice;
+        document.getElementById("togglePriceBtn").textContent =
+          useMarketPrice ? "使用限價" : "使用市價";
       });
-
+  
     document.getElementById("toggleHistoryBtn")
-      .addEventListener("click",()=>{
-        const sb=document.getElementById("historySidebar");
-        sb.style.right=sb.style.right==="0px"?"-350px":"0px";
+      .addEventListener("click", () => {
+        const sb = document.getElementById("historySidebar");
+        sb.style.right = sb.style.right === "0px" ? "-350px" : "0px";
       });
-
-    document.querySelectorAll("input")
-      .forEach(i=>i.addEventListener("input",calculate));
-
+  
     document.getElementById("symbolInput")
-      .addEventListener("input",()=>{
-        const v=document.getElementById("symbolInput").value.trim();
-        if(v&&v!==currentSymbol){
-          currentSymbol=v;
+      .addEventListener("input", () => {
+        const disp = document.getElementById("symbolInput").value.trim();
+        const inst = displayToInstId(disp);
+        if (inst !== currentSymbolInst) {
+          currentSymbolInst = inst;
           fetchMarketPrice();
           calculate();
         }
       });
-
+  
+    document.querySelectorAll("input")
+      .forEach(i => i.addEventListener("input", calculate));
+  
     document.getElementById("saveBtn")
-      .addEventListener("click",saveToHistory);
-
-    async function loadSymbols(){
-      const res=await fetch("https://www.okx.com/api/v5/public/instruments?instType=SWAP");
-      const data=await res.json();
-      const dl=document.getElementById("symbolList");
-      data.data.filter(i=>i.settleCcy==="USDT"&&i.instId.endsWith("-SWAP"))
+      .addEventListener("click", saveToHistory);
+  
+    // 載入所有 USDT 永續合約並顯示成 .P 格式
+    async function loadSymbols() {
+      const res = await fetch("https://www.okx.com/api/v5/public/instruments?instType=SWAP");
+      const data= await res.json();
+      const dl  = document.getElementById("symbolList");
+      data.data
+        .filter(i=> i.settleCcy==="USDT" && i.instId.endsWith("-SWAP"))
         .forEach(i=>{
-          const o=document.createElement("option");
-          o.value=i.instId; dl.append(o);
+          const opt    = document.createElement("option");
+          opt.value    = instIdToDisplay(i.instId);
+          dl.append(opt);
         });
-      document.getElementById("symbolInput").value=currentSymbol;
+      document.getElementById("symbolInput").value = instIdToDisplay(currentSymbolInst);
     }
-
-    async function fetchMarketPrice(){
-      try{
-        const r=await fetch(`https://www.okx.com/api/v5/market/ticker?instId=${currentSymbol}`);
-        const j=await r.json();
-        const p=parseFloat(j.data?.[0]?.last);
-        if(useMarketPrice&&!isNaN(p)){
-          document.getElementById("entryPrice").value=p;
+  
+    // 市價輪詢
+    async function fetchMarketPrice() {
+      try {
+        const r = await fetch(`https://www.okx.com/api/v5/market/ticker?instId=${currentSymbolInst}`);
+        const j = await r.json();
+        const p = parseFloat(j.data?.[0]?.last);
+        if (useMarketPrice && !isNaN(p)) {
+          document.getElementById("entryPrice").value = p;
           calculate();
         }
-      }catch{}
+      } catch {}
     }
-    setInterval(fetchMarketPrice,500);
-
-    function calculate(){
-      const cap=+document.getElementById("capital").value;
-      const mr=+document.getElementById("marginRatio").value/100;
-      const sr=+document.getElementById("stoploss").value/100;
-      const ml=+document.getElementById("maxLoss").value;
-      const ep=+document.getElementById("entryPrice").value;
-
-      const B3=cap*mr;
-      const B4=ml/(cap*mr*sr);
-      const position=Math.round(B3*B4);
-
-      document.getElementById("leverage").textContent=Math.round(B4);
-      document.getElementById("position").textContent=`$${position.toLocaleString()} USDT`;
-
-      const longM=(position/B4)*1.0188;
-      const shortM=(position/B4)*1.00125;
-      document.getElementById("longMargin").textContent=longM.toFixed(2);
-      document.getElementById("shortMargin").textContent=shortM.toFixed(2);
-
-      document.getElementById("available").textContent=
-        Math.round((cap-longM)*100)/100;
-
-      document.getElementById("liqPrice").textContent=
-        B4>0?Math.round((ep*(1-1/B4))*100000)/100000:0;
-
-      const mReq=position*0.00803;
-      document.getElementById("maintMarginRatio").textContent=
-        (mReq>0?(longM/mReq)*100:0).toFixed(2);
+    setInterval(fetchMarketPrice, 500);
+  
+    // 計算 & 更新畫面
+    function calculate() {
+      const cap = +document.getElementById("capital").value;
+      const mr  = +document.getElementById("marginRatio").value / 100;
+      const sr  = +document.getElementById("stoploss").value / 100;
+      const ml  = +document.getElementById("maxLoss").value;
+      const ep  = +document.getElementById("entryPrice").value;
+  
+      // Excel 流程
+      const B3 = cap * mr;
+      const B4 = ml / (cap * mr * sr);
+      const pos= Math.round(B3 * B4);
+  
+      document.getElementById("leverage").textContent = Math.round(B4);
+      document.getElementById("position").textContent = `$${pos.toLocaleString()} USDT`;
+  
+      const longM = (pos / B4) * 1.0188;
+      const shortM= (pos / B4) * 1.00125;
+      const avail = Math.round((cap - longM) * 100) / 100;
+      const liqP  = B4>0
+                   ? Math.round((ep * (1 - 1/B4)) * 100000)/100000
+                   : 0;
+      const mReq  = pos * 0.00803;
+      const mRat  = mReq>0 ? (longM/mReq)*100 : 0;
+  
+      document.getElementById("longMargin").textContent       = longM.toFixed(2);
+      document.getElementById("shortMargin").textContent      = shortM.toFixed(2);
+      document.getElementById("available").textContent        = avail;
+      document.getElementById("liqPrice").textContent         = liqP;
+      document.getElementById("maintMarginRatio").textContent = mRat.toFixed(2);
     }
-
-    function saveToHistory(){
-      const rec={
-        symbol:currentSymbol,
-        capital:+document.getElementById("capital").value,
+  
+    // 書籤功能
+    function saveToHistory() {
+      const rec = {
+        symbol: instIdToDisplay(currentSymbolInst),
+        capital: +document.getElementById("capital").value,
         entryPrice:+document.getElementById("entryPrice").value,
         marginRatio:+document.getElementById("marginRatio").value,
-        stoploss:+document.getElementById("stoploss").value,
-        maxLoss:+document.getElementById("maxLoss").value,
-        time:new Date().toLocaleString()
+        stoploss: +document.getElementById("stoploss").value,
+        maxLoss:  +document.getElementById("maxLoss").value,
+        time: new Date().toLocaleString()
       };
-      const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
-      h.unshift(rec); if(h.length>10)h.length=10;
-      localStorage.setItem(HISTORY_KEY,JSON.stringify(h));
+      const h = JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
+      h.unshift(rec); if(h.length>10) h.length=10;
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(h));
       renderHistory();
     }
-
-    function renderHistory(){
-      const lst=document.getElementById("historyList");
-      const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
+    function renderHistory() {
+      const lst = document.getElementById("historyList");
+      const h   = JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
       lst.innerHTML="";
       h.forEach((it,i)=>{
-        const lr=it.maxLoss/(it.capital*(it.marginRatio/100)*(it.stoploss/100));
-        const pos=Math.round((it.capital*(it.marginRatio/100))*lr);
-        const div=document.createElement("div");
-        div.innerHTML=`
+        const lr = it.maxLoss/(it.capital*(it.marginRatio/100)*(it.stoploss/100));
+        const pos= Math.round((it.capital*(it.marginRatio/100)) * lr);
+        const div= document.createElement("div");
+        div.innerHTML = `
           <b>${it.symbol}</b> @ ${it.entryPrice}
           ｜槓桿: ${Math.round(lr)} 倍
           ｜總持倉量: $${pos.toLocaleString()} USDT
@@ -215,29 +239,37 @@
         lst.append(div);
       });
       lst.querySelectorAll(".app")
-         .forEach(b=>b.addEventListener("click",e=>applyHistory(+e.target.dataset.i)));
+         .forEach(b=>b.addEventListener("click", e=>{
+           const idx=+e.target.dataset.i;
+           applyHistory(idx);
+         }));
       lst.querySelectorAll(".del")
-         .forEach(b=>b.addEventListener("click",e=>deleteHistory(+e.target.dataset.i)));
+         .forEach(b=>b.addEventListener("click", e=>{
+           const idx=+e.target.dataset.i;
+           deleteHistory(idx);
+         }));
     }
-
-    function applyHistory(i){
-      const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]"),it=h[i];
-      if(!it)return;
-      document.getElementById("symbolInput").value=it.symbol;
+    function applyHistory(i) {
+      const h = JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
+      const it = h[i]; if(!it) return;
+      document.getElementById("symbolInput").value = it.symbol;
       ["capital","entryPrice","marginRatio","stoploss","maxLoss"]
-        .forEach(id=>document.getElementById(id).value=it[id]);
-      currentSymbol=it.symbol; calculate();
+        .forEach(id=> document.getElementById(id).value = it[id]);
+      currentSymbolInst = displayToInstId(it.symbol);
+      calculate();
     }
-
-    function deleteHistory(i){
-      const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
-      h.splice(i,1); localStorage.setItem(HISTORY_KEY,JSON.stringify(h));
+    function deleteHistory(i) {
+      const h = JSON.parse(localStorage.getItem(HISTORY_KEY)||"[]");
+      h.splice(i,1);
+      localStorage.setItem(HISTORY_KEY,JSON.stringify(h));
       renderHistory();
     }
-
+  
+    // 頁面載入
     loadSymbols();
     renderHistory();
     calculate();
   </script>
+  
 </body>
 </html>
