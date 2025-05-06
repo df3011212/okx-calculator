@@ -4,11 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OKX 槓桿獲利計算工具</title>
-  <link rel="manifest" href="manifest.json">
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
       font-family: "Microsoft JhengHei", "Noto Sans TC", sans-serif;
       font-size: 18px;
@@ -30,15 +27,12 @@
     .yellow {
       background: linear-gradient(to bottom right, #ffe066, #ffd700);
     }
-    .green {
-      background: linear-gradient(to bottom right, #d9fdd3, #c2f0c2);
-    }
     label {
       display: block;
       margin-top: 15px;
       font-weight: 600;
     }
-    input[type="number"], input[type="text"] {
+    input[type="number"], input[list], select {
       width: 100%;
       padding: 10px;
       font-size: 16px;
@@ -50,92 +44,165 @@
       margin-top: 15px;
       font-weight: bold;
     }
-    #fontSize {
-      width: 80px;
-      margin-right: 5px;
+    button {
+      margin-top: 10px;
+      padding: 8px 12px;
+      font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
     }
-    .footer {
-      text-align: right;
-      font-size: 12px;
-      color: #666;
-    }
-    #visitorCount {
-      margin-top: 30px;
-      text-align: center;
+    small {
       font-size: 14px;
-      color: #999;
     }
   </style>
+  
 </head>
 <body>
   <div class="container">
-    <div style="text-align: right; margin-bottom: 10px;">
-      <label for="fontSize">字體大小：
-        <input type="number" id="fontSize" value="18"> px
-      </label>
-    </div>
-
     <div class="section yellow">
-      <h2>限定全倉使用</h2>
-      <label>本金 USDT <input id="capital" type="number" value="2552"></label>
-      <label>保證金比例 (%) <input id="marginRatio" type="number" value="5"></label>
-      <label>止損比例 (%) <input id="stoploss" type="number" value="8.21"></label>
-      <label>最大虧損 USDT <input id="maxLoss" type="number" value="500"></label>
-      <div class="result">保證金：<span id="marginResult"></span> USDT</div>
-      <div class="result">槓桿倍數：<span id="leverage"></span> 倍</div>
-      <div class="result">總持倉量：<span id="position"></span></div>
-    </div>
+      <h2>開單速算表</h2>
+      <label>選擇幣種
+        <input id="symbolInput" list="symbolList" oninput="onSymbolInput()" />
+        <datalist id="symbolList"></datalist>
+      </label>
+      <label>本金 USDT <input id="capital" type="number" value="4326.06"></label>
+      <label>首次開倉價格（可手動修改，預設市價）
+        <input id="entryPrice" type="number" step="0.00001">
+        <button onclick="toggleMarketPrice()">使用限價</button>
+      </label>
+      <label>保證金比例 (%) <input id="marginRatio" type="number" value="50"></label>
+      <label>止損比例 (%) <input id="stoploss" type="number" value="7"></label>
+      <label>最大虧損 USDT <input id="maxLoss" type="number" value="3000"></label>
 
-    <div class="section green">
-      <h2>全倉獲利計算</h2>
-      <label>預估獲利 (%) <input id="profitPct" type="number" value="30"></label>
-      <div class="result">槓桿獲利 %：<span id="leverageProfit"></span> %</div>
-      <div class="result">最終獲利：<span id="finalProfit"></span> USDT</div>
+      <div class="result">
+        槓桿倍數：<span id="leverage"></span> 倍　　總持倉量：<span id="position"></span>
+      </div>
+      <div class="result">
+        做多 成本：約 <span id="longMargin"></span> USDT 保證金　　
+        做空 成本：約 <span id="shortMargin"></span> USDT 保證金
+        <br><small style="font-weight: normal; color: #666;">
+          ＊保守係數略有微幅差異，不影響實際開倉判斷
+        </small>
+      </div>
+      <div class="result">
+        剩餘可用資金：<span id="available"></span> USDT
+        <br><small style="font-weight: normal; color: #666;">
+          ＊保守係數略有微幅差異，不影響實際開倉判斷
+        </small>
+      </div>
+      <div class="result">
+        維持保證金率：<span id="maintMarginRatio">14351.61</span>% 
+        <br><small style="font-weight: normal; color: #666;">
+          ＊根據 OKX 等級最低維持保證金門檻推估
+        </small>
+      </div>
+      <div class="result">
+        預估強平價格：<span id="liqPrice"></span> USDT
+        <br><small style="font-weight: normal; color: #666;">
+          ＊當維持保證金率極高時，OKX 不會顯示強平價格，屬於低風險倉位
+        </small>
+      </div>
     </div>
-
-    <div class="footer">by: df3011212</div>
-    <div id="visitorCount">👁️ 來訪次數：<span id="visitCounter"></span> 次</div>
   </div>
 
+  <!-- （略過 head 及前半部 HTML 結構） -->
+
   <script>
+    let useMarketPrice = true;
+    let currentSymbol = "OP-USDT-SWAP";
+  
+    function toggleMarketPrice() {
+      useMarketPrice = !useMarketPrice;
+      const button = document.querySelector("button[onclick='toggleMarketPrice()']");
+      button.textContent = useMarketPrice ? "使用限價" : "使用市價";
+    }
+  
+    async function fetchMarketPrice() {
+      try {
+        const res = await fetch(`https://www.okx.com/api/v5/market/ticker?instId=${currentSymbol}`);
+        const data = await res.json();
+        const price = parseFloat(data.data[0].last);
+        if (useMarketPrice && !isNaN(price)) {
+          document.getElementById("entryPrice").value = price;
+          calculate();
+        }
+      } catch (e) {
+        console.warn("市價載入失敗", e);
+      }
+    }
+  
+    async function loadSymbols() {
+      try {
+        const res = await fetch("https://www.okx.com/api/v5/public/instruments?instType=SWAP");
+        const data = await res.json();
+        const datalist = document.getElementById("symbolList");
+        data.data
+          .filter(item => item.settleCcy === "USDT" && item.instId.endsWith("-SWAP"))
+          .forEach(item => {
+            const option = document.createElement("option");
+            option.value = item.instId;
+            datalist.appendChild(option);
+          });
+  
+        document.getElementById("symbolInput").value = currentSymbol; // 初始顯示
+      } catch (e) {
+        console.warn("無法載入幣種", e);
+      }
+    }
+  
+    function onSymbolInput() {
+      const val = document.getElementById("symbolInput").value.trim();
+      if (val && val !== currentSymbol) {
+        currentSymbol = val;
+        fetchMarketPrice();
+        calculate();
+      }
+    }
+  
+    setInterval(fetchMarketPrice, 200);
+    loadSymbols();
+  
     const inputs = document.querySelectorAll("input");
     inputs.forEach(input => input.addEventListener("input", calculate));
-
-    document.getElementById("fontSize").addEventListener("input", () => {
-      document.body.style.fontSize = document.getElementById("fontSize").value + "px";
-    });
-
+  
     function calculate() {
       const capital = parseFloat(document.getElementById("capital").value);
       const marginRatio = parseFloat(document.getElementById("marginRatio").value) / 100;
       const stoplossRatio = parseFloat(document.getElementById("stoploss").value) / 100;
       const maxLoss = parseFloat(document.getElementById("maxLoss").value);
-      const profitPct = parseFloat(document.getElementById("profitPct").value) / 100;
-
+      const entryPrice = parseFloat(document.getElementById("entryPrice").value);
+  
       const marginRaw = capital * marginRatio;
-      const margin = Math.round(marginRaw); // 顯示用
       const leverageRaw = (marginRaw * stoplossRatio) === 0 ? 0 : maxLoss / (marginRaw * stoplossRatio);
-      const leverage = Math.round(leverageRaw * 100000) / 100000;
-      const position = Math.round(marginRaw * leverage); // 使用原始 marginRaw 計算 ✅
-
-      const leverageProfit = Math.round(leverage * profitPct * 100);
-      const finalProfit = Math.round(leverage * marginRaw * profitPct);  // ← 用原始 marginRaw ✅
-
-
-      document.getElementById("marginResult").textContent = `${margin}`;
-      document.getElementById("leverage").textContent = `${Math.round(leverage)}`;
+      const leverageDisplay = Math.round(leverageRaw);
+      const leverage = leverageRaw;
+      const position = Math.round(marginRaw * leverage);
+  
+      const longMargin = (position / leverage) * 1.0188;
+      const shortMargin = (position / leverage) * 1.00125;
+      const available = Math.round((capital - longMargin) * 100) / 100;
+      const liqPrice = leverage > 0 ? Math.round((entryPrice * (1 - 1 / leverage)) * 100000) / 100000 : 0;
+  
+      // OKX 槓桿 > 20 時保證金門檻較高（如 0.00803）
+      const maintMarginRate = 0.00803;
+      const maintRequired = position * maintMarginRate;
+      const maintMarginRatio = maintRequired > 0 ? (longMargin / maintRequired) * 100 : 0;
+  
+      document.getElementById("longMargin").textContent = `${longMargin.toFixed(2)}`;
+      document.getElementById("shortMargin").textContent = `${shortMargin.toFixed(2)}`;
+      document.getElementById("leverage").textContent = `${leverageDisplay}`;
       document.getElementById("position").textContent = `$${position.toLocaleString()} USDT`;
-      document.getElementById("leverageProfit").textContent = `${leverageProfit}`;
-      document.getElementById("finalProfit").textContent = `${finalProfit}`;
+      document.getElementById("available").textContent = `${available}`;
+      document.getElementById("liqPrice").textContent = `${liqPrice}`;
+      document.getElementById("maintMarginRatio").textContent = `${maintMarginRatio.toFixed(2)}`;
     }
-
-    const visitKey = 'okx-visit-count';
-    let count = parseInt(localStorage.getItem(visitKey) || '0', 10);
-    count++;
-    localStorage.setItem(visitKey, count);
-    document.getElementById("visitCounter").textContent = count;
-
+  
     calculate();
   </script>
+  
+
 </body>
 </html>
