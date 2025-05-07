@@ -1,9 +1,17 @@
 
 // 啟動、綁定所有事件
 window.addEventListener("DOMContentLoaded", () => {
-  loadSymbols();
-  setInterval(fetchMarketPrice, 500);
-  calculate();
+    loadSymbols();
+    setInterval(fetchMarketPrice, 500);
+    calculate();
+    fetch("https://www.okx.com/api/v5/public/instruments?instType=SWAP")
+    .then(res => res.json())
+    .then(data => {
+      window.coinList = data.data
+        .filter(i => i.settleCcy === "USDT" && i.instId.endsWith("-SWAP"))
+        .map(i => i.instId.replace(/-/g, "").replace("SWAP", ".P"));
+    });
+  
 
   // 綁定 UI 互動
   document.getElementById("togglePriceBtn")
@@ -48,8 +56,8 @@ window.addEventListener("DOMContentLoaded", () => {
     searchResult.innerHTML = "";
     if (!keyword) return;
 
-    const coins = ["BTCUSDT.P", "ETHUSDT.P", "OPUSDT.P", "SOLUSDT.P"];
-    const results = coins.filter(c => c.includes(keyword));
+    const results = (window.coinList || []).filter(c => c.includes(keyword));
+
 
     results.forEach(coin => {
       const div = document.createElement("div");
@@ -174,4 +182,8 @@ function renderFavorites() {
     };
     favoriteList.appendChild(btn);
   });
+}
+// 一鍵清除搜尋結果
+function clearSearchResult() {
+  document.getElementById("searchResult").innerHTML = "";
 }
