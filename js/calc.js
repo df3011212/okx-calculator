@@ -21,18 +21,27 @@
     return `${base}-${quote}-SWAP`;
   }
 
-  async function loadSymbols(){
+  async function loadSymbols() {
     const res = await fetch("https://www.okx.com/api/v5/public/instruments?instType=SWAP");
-    const data= await res.json();
-    const dl  = document.getElementById("symbolList");
-    data.data.filter(i=>i.settleCcy==="USDT"&&i.instId.endsWith("-SWAP"))
-      .forEach(i=>{
-        const opt=document.createElement("option");
-        opt.value=instIdToDisplay(i.instId);
+    const data = await res.json();
+    const dl = document.getElementById("symbolList");
+  
+    if (!dl) {
+      console.warn("⚠️ 找不到 #symbolList，跳過幣種列表建立");
+      return;
+    }
+  
+    data.data
+      .filter(i => i.settleCcy === "USDT" && i.instId.endsWith("-SWAP"))
+      .forEach(i => {
+        const opt = document.createElement("option");
+        opt.value = instIdToDisplay(i.instId);
         dl.append(opt);
       });
+  
     document.getElementById("symbolInput").value = instIdToDisplay("OP-USDT-SWAP");
   }
+  
 
   async function fetchMarketPrice(){
     try {
