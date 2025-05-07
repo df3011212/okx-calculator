@@ -6,25 +6,64 @@
   <title>OKX 槓桿獲利計算工具</title>
   <!-- 你的 CSS -->
   <link rel="stylesheet" href="style.css">
+  
 </head>
 <body>
+
+  <!-- ✅ 加密貨幣搜尋彈窗 -->
+  <div id="cryptoSearchModalOverlay">
+    <div id="cryptoSearchModal">
+      <h2>🔍 加密貨幣搜尋</h2>
+      <input type="text" id="cryptoSearchInput" placeholder="搜尋幣種（如 BTC、ETH、OP）">
+  
+      <!-- 🔎 搜尋結果區塊移到最上方 -->
+      <div class="crypto-result">
+        <h3>🔎 搜尋結果</h3>
+        <div id="searchResult"></div>
+      </div>
+  
+      <div class="crypto-history">
+        <h3>🕘 最近搜尋
+          <button onclick="clearCryptoHistory()">🗑 一鍵清除</button>
+        </h3>
+        <div id="historyList"></div>
+      </div>
+  
+      <div class="crypto-favorite">
+        <h3>⭐ 我的最愛</h3>
+        <div id="favoriteList"></div>
+      </div>
+  
+      <div class="actions">
+        <button onclick="closeCryptoSearch()">關閉</button>
+      </div>
+    </div>
+  </div>
+  <!--   ✅ 加密貨幣搜尋彈窗到這裡結束 -->
+
   <div class="container">
     <div class="section yellow">
       <h2>開單速算表</h2>
 
       <label>選擇幣種
-        <input id="symbolInput" list="symbolList"/>
+        <div class="symbol-row">
+          <input id="symbolInput" list="symbolList" />
+          <button type="button" class="clear-btn" onclick="document.getElementById('symbolInput').value='';">清除</button>
+        </div>
         <datalist id="symbolList"></datalist>
       </label>
+      
+      
 
       <label>本金 USDT
         <input id="capital" type="number" value="1658"/>
       </label>
 
-      <label>首次開倉價格（手動/市價切換）
+      <label>首次開倉價格（手動/市價切換）</label>
+      <div class="price-row">
         <input id="entryPrice" type="number" step="0.00001"/>
         <button id="togglePriceBtn">使用限價</button>
-      </label>
+      </div>
 
       <label>保證金比例 (%)
         <input id="marginRatio" type="number" value="5"/>
@@ -85,5 +124,7 @@
   <script src="js/features/advRevenge.js"></script>
   <script src="js/feature.js"></script>
   <script src="js/main.js"></script>
+
+
 </body>
 </html>
