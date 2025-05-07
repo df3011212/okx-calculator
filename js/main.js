@@ -24,6 +24,7 @@ document.querySelectorAll("input")
 
 document.getElementById("toggleHistoryBtn")
   .addEventListener("click", () => {
+    renderSavedHistory();
     const sb = document.getElementById("historySidebar");
     sb.style.right = sb.style.right === "0px" ? "-350px" : "0px";
   });
@@ -129,7 +130,7 @@ renderCryptoHistory();
 }
 
 function renderCryptoHistory() {
-const list = document.getElementById("historyList");
+const list = document.getElementById("recentSearchList");
 const history = JSON.parse(localStorage.getItem("crypto_history") || "[]");
 list.innerHTML = "";
 history.forEach(symbol => {
@@ -232,4 +233,107 @@ function fetchMarketPrice() {
       }
     })
     .catch(err => console.error("市價抓取失敗", err));
+}
+
+
+
+function renderSavedHistory() {
+  const list = document.getElementById("bookmarkHistoryList");
+  const history = JSON.parse(localStorage.getItem("saved_history") || "[]");
+  list.innerHTML = "";
+
+  if (!history.length) {
+    list.innerHTML = "<p style='color: #888;'>（尚無書籤紀錄）</p>";
+    return;
+  }
+
+  history.forEach((record, index) => {
+    const div = document.createElement("div");
+    div.className = "bookmark-card";
+    const date = new Date(record.timestamp);
+    const dateStr = date.toLocaleString("zh-TW", {
+      year: "numeric", month: "numeric", day: "numeric",
+      hour: "numeric", minute: "numeric", second: "numeric",
+      hour12: true
+    });
+
+    const leverage = Math.round((record.maxLoss / ((record.capital * record.marginRatio / 100) * (record.stoploss / 100))));
+    const position = Math.round(record.capital * (record.marginRatio / 100) * leverage);
+
+    div.innerHTML = `
+      <div><strong>${record.symbol}</strong> @ ${record.entryPrice}｜槓桿: ${leverage} 倍｜總持倉量: $${position.toLocaleString()} USDT</div>
+      <div style="font-size: 14px; color: #666; margin: 6px 0;">${dateStr}</div>
+      <div class="bookmark-actions">
+        <button onclick="applyHistory(${index})" class="apply-btn">套用</button>
+        <button onclick="deleteHistory(${index})" class="delete-btn">刪除</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+window.applyHistory = function(index) {
+  const history = JSON.parse(localStorage.getItem("saved_history") || "[]");
+  const r = history[index];
+  if (!r) return;
+
+  document.getElementById("symbolInput").value = r.symbol;
+  document.getElementById("capital").value = r.capital;
+  document.getElementById("entryPrice").value = r.entryPrice;
+  document.getElementById("marginRatio").value = r.marginRatio;
+  document.getElementById("stoploss").value = r.stoploss;
+  document.getElementById("maxLoss").value = r.maxLoss;
+
+  document.getElementById("symbolInput").dispatchEvent(new Event("input"));
+};
+
+
+window.deleteHistory = function(index) {
+  if (!confirm("確定要刪除這筆書籤紀錄嗎？")) return;
+  let history = JSON.parse(localStorage.getItem("saved_history") || "[]");
+  history.splice(index, 1);
+  localStorage.setItem("saved_history", JSON.stringify(history));
+  renderSavedHistory();
+};
+
+function saveToHistory() {
+  const symbol = document.getElementById("symbolInput").value.trim();
+  const capital = document.getElementById("capital").value.trim();
+  const entryPrice = document.getElementById("entryPrice").value.trim();
+  const marginRatio = document.getElementById("marginRatio").value.trim();
+  const stoploss = document.getElementById("stoploss").value.trim();
+  const maxLoss = document.getElementById("maxLoss").value.trim();
+
+  const record = {
+    symbol,
+    capital,
+    entryPrice,
+    marginRatio,
+    stoploss,
+    maxLoss,
+    timestamp: Date.now()
+  };
+
+  let history = JSON.parse(localStorage.getItem("saved_history") || "[]");
+
+  const isDuplicate = history.some(item => item.symbol === record.symbol && item.entryPrice === record.entryPrice);
+  if (isDuplicate) {
+    const msg = document.createElement("div");
+    msg.textContent = "❌ 已存在相同紀錄，不重複儲存";
+    msg.style.cssText = "background:#c00;color:#fff;padding:8px 16px;border-radius:8px;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;";
+    document.body.appendChild(msg);
+    setTimeout(() => msg.remove(), 2000);
+    return;
+  }
+
+  history.unshift(record);
+  if (history.length > 10) history.length = 10;
+  localStorage.setItem("saved_history", JSON.stringify(history));
+  renderSavedHistory();
+
+  const ok = document.createElement("div");
+  ok.textContent = "✅ 儲存紀錄成功";
+  ok.style.cssText = "background:#28a745;color:#fff;padding:8px 16px;border-radius:8px;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;";
+  document.body.appendChild(ok);
+  setTimeout(() => ok.remove(), 1500);
 }
