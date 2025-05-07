@@ -15,17 +15,27 @@
       <h2>🔍 加密貨幣搜尋</h2>
       <input type="text" id="cryptoSearchInput" placeholder="搜尋幣種（如 BTC、ETH、OP）">
 
-      <div class="crypto-result">
-        <h3>🔎 搜尋結果</h3>
-        <div id="searchResult"></div>
-      </div>
+  <!-- 🔍 搜尋結果 -->
+  <div class="section-header">
+    <h3>🔎 搜尋結果</h3>
+    <button class="btn-clear" onclick="clearSearchResult()">🗑 一鍵清除</button>
+  </div>
+  <div id="searchResult" class="crypto-list"></div>
 
-      <div class="crypto-history">
-        <h3>🕘 最近搜尋
-          <button onclick="clearCryptoHistory()">🗑 一鍵清除</button>
-        </h3>
-        <div id="historyList"></div>
-      </div>
+  <!-- 🕘 最近搜尋 -->
+  <div class="section-header">
+    <h3>🕘 最近搜尋</h3>
+    <button class="btn-clear" onclick="clearCryptoHistory()">🗑 一鍵清除</button>
+  </div>
+  <div class="crypto-list" id="historyList"></div>
+
+      
+
+
+
+
+
+
 
       <div class="crypto-favorite">
         <h3>⭐ 我的最愛</h3>
@@ -44,11 +54,11 @@
 
       <label>選擇幣種
         <div class="symbol-row">
-          <input id="symbolInput" list="symbolList" />
+          <input id="symbolInput" type="text" autocomplete="off" />
           <button type="button" class="clear-btn" onclick="document.getElementById('symbolInput').value='';">清除</button>
         </div>
-        <datalist id="symbolList"></datalist>
       </label>
+      
 
       <label>本金 USDT
         <input id="capital" type="number" value="1658"/>
