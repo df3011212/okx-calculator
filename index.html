@@ -4,9 +4,8 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>OKX 槓桿獲利計算工具</title>
-  <!-- 你的 CSS -->
-  <link rel="stylesheet" href="style.css">
-  
+  <!-- ✅ 修正過的 CSS 路徑 -->
+  <link rel="stylesheet" href="/okx-calculator/style.css">
 </head>
 <body>
 
@@ -15,31 +14,29 @@
     <div id="cryptoSearchModal">
       <h2>🔍 加密貨幣搜尋</h2>
       <input type="text" id="cryptoSearchInput" placeholder="搜尋幣種（如 BTC、ETH、OP）">
-  
-      <!-- 🔎 搜尋結果區塊移到最上方 -->
+
       <div class="crypto-result">
         <h3>🔎 搜尋結果</h3>
         <div id="searchResult"></div>
       </div>
-  
+
       <div class="crypto-history">
         <h3>🕘 最近搜尋
           <button onclick="clearCryptoHistory()">🗑 一鍵清除</button>
         </h3>
         <div id="historyList"></div>
       </div>
-  
+
       <div class="crypto-favorite">
         <h3>⭐ 我的最愛</h3>
         <div id="favoriteList"></div>
       </div>
-  
+
       <div class="actions">
         <button onclick="closeCryptoSearch()">關閉</button>
       </div>
     </div>
   </div>
-  <!--   ✅ 加密貨幣搜尋彈窗到這裡結束 -->
 
   <div class="container">
     <div class="section yellow">
@@ -52,8 +49,6 @@
         </div>
         <datalist id="symbolList"></datalist>
       </label>
-      
-      
 
       <label>本金 USDT
         <input id="capital" type="number" value="1658"/>
@@ -77,7 +72,6 @@
         <input id="maxLoss" type="number" value="300"/>
       </label>
 
-      <!-- 兩欄結果網格 -->
       <div class="results-grid">
         <div class="result-item">槓桿倍數：<span id="leverage"></span> 倍</div>
         <div class="result-item">總持倉量：<span id="position"></span></div>
@@ -92,17 +86,14 @@
     </div>
   </div>
 
-  <!-- 浮動按鈕：功能 & 書籤 -->
   <button id="newFeatureBtn">🔧 功能</button>
   <button id="toggleHistoryBtn">📚 書籤</button>
 
-  <!-- 書籤側欄 -->
   <div id="historySidebar">
     <h3>📖 書籤紀錄</h3>
     <div id="historyList"></div>
   </div>
 
-  <!-- 功能選單 -->
   <div id="featureMenu" class="feature-menu-hidden">
     <button id="featureCloseBtn" class="feature-close">×</button>
     <div class="feature-title">功能選單</div>
@@ -115,16 +106,15 @@
     <div id="featureContent" style="display:none;"></div>
   </div>
 
-  <!-- 載入各功能模組 -->
-  <script src="js/calc.js"></script>
-  <script src="js/history.js"></script>
-  <script src="js/features/manualAvg.js"></script>
-  <script src="js/features/specifiedAvg.js"></script>
-  <script src="js/features/quickRevenge.js"></script>
-  <script src="js/features/advRevenge.js"></script>
-  <script src="js/feature.js"></script>
-  <script src="js/main.js"></script>
-
+  <!-- ✅ 修正過的 JS 路徑 -->
+  <script src="/okx-calculator/js/calc.js"></script>
+  <script src="/okx-calculator/js/history.js"></script>
+  <script src="/okx-calculator/js/features/manualAvg.js"></script>
+  <script src="/okx-calculator/js/features/specifiedAvg.js"></script>
+  <script src="/okx-calculator/js/features/quickRevenge.js"></script>
+  <script src="/okx-calculator/js/features/advRevenge.js"></script>
+  <script src="/okx-calculator/js/feature.js"></script>
+  <script src="/okx-calculator/js/main.js"></script>
 
 </body>
 </html>
