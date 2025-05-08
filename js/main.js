@@ -238,7 +238,7 @@ function fetchMarketPrice() {
 
 
 function renderSavedHistory() {
-  const list = document.getElementById("bookmarkHistoryList");
+  const list = document.getElementById("historyList");
   const history = JSON.parse(localStorage.getItem("saved_history") || "[]");
   list.innerHTML = "";
 
