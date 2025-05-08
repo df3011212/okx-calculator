@@ -5,9 +5,12 @@ window.initManualAvg = function() {
   document.getElementById('rankingSection').style.display = 'none';
   section.style.display = 'block';
 
-  // 注入 UI HTML，只保留 USDT 模式
+  // 注入 UI HTML，只保留 USDT 模式，並新增關閉按鈕
   section.innerHTML = `
-    <h2>OKX 開倉均價計算器</h2>
+    <div class="manual-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <h2 style="margin:0;">OKX 開倉均價計算器</h2>
+      <button id="closeManualAvg" class="close-btn" style="font-size:14px; 6px;width:auto;min-width:50px;">關閉</button>
+    </div>
     <label>搜尋幣種：
       <input list="symbols" id="symbol" placeholder="例如 BTCUSDT.P" />
       <datalist id="symbols"></datalist>
@@ -22,6 +25,12 @@ window.initManualAvg = function() {
   `;
 
   const get = sel => section.querySelector(sel);
+  // 關閉按鈕事件：隱藏手動均價區塊並顯示排行榜
+  get('#closeManualAvg').addEventListener('click', () => {
+    section.style.display = 'none';
+    document.getElementById('rankingSection').style.display = 'block';
+  });
+
   let currentInstId = '';
   let timer = null;
   // 存儲每個合約的 lotSz（若有）
@@ -79,7 +88,7 @@ window.initManualAvg = function() {
     const symbolDisplay = get('#symbol').value;
     const rows = section.querySelectorAll('.row');
     let avg = 0;
-  
+
     if (symbolDisplay === 'ETHUSDT.P') {
       let totalQty = 0, totalVal = 0;
       rows.forEach(row => {
@@ -92,7 +101,7 @@ window.initManualAvg = function() {
         }
       });
       avg = totalQty ? (totalVal / totalQty) : 0;
-  
+
     } else if (symbolDisplay === 'SOLUSDT.P') {
       let totalQty = 0, totalVal = 0;
       rows.forEach(row => {
@@ -105,7 +114,7 @@ window.initManualAvg = function() {
         }
       });
       avg = totalQty ? (totalVal / totalQty) : 0;
-  
+
     } else if (symbolDisplay === 'BTCUSDT.P') {
       let totalQty = 0, totalVal = 0;
       rows.forEach(row => {
@@ -118,7 +127,7 @@ window.initManualAvg = function() {
         }
       });
       avg = totalQty ? (totalVal / totalQty) : 0;
-  
+
     } else {
       let sum = 0, count = 0;
       rows.forEach(row => {
@@ -130,11 +139,9 @@ window.initManualAvg = function() {
       });
       avg = count ? (sum / count) : 0;
     }
-  
+
     get('#result').innerText = `平均開倉價：${avg.toFixed(4)} USDT`;
   }
-  
-  
 
   // 新增一行輸入
   function addEntry() {
@@ -162,7 +169,6 @@ window.initManualAvg = function() {
     const instId = toInstId(symbol);
     if (!instId) return;
     currentInstId = instId;
-    // 重置兩行並預填示範值
     const container = get('#entries');
     container.innerHTML = '';
     for (let i = 0; i < 2; i++) addEntry();
