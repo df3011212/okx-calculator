@@ -357,3 +357,417 @@ button {
   border-radius: 6px;
   cursor: pointer;
 }
+/* 排行榜容器 */
+.ranking-list {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 1rem;
+  padding: 0;
+}
+
+/* 一列一列的項目 */
+.ranking-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  white-space: nowrap; /* 不要自動換行 */
+}
+
+/* 幣種靠左、字體稍粗 */
+.ranking-item .symbol {
+  flex: 2;
+  font-weight: bold;
+}
+
+/* 價格居中 */
+.ranking-item .price {
+  flex: 1;
+  text-align: center;
+}
+
+/* 量靠右 */
+.ranking-item .volume {
+  flex: 1;
+  text-align: right;
+}
+/* 排行榜外層滾動容器 */
+.ranking-container {
+  max-height: 350px;
+  overflow-y: auto;
+  margin-top: 1rem;
+  background: #fff;
+  border-radius: 8px;
+}
+
+/* 排行榜表格 */
+.ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+/* 標題列 */
+.ranking-table thead th {
+  position: sticky;
+  top: 0;
+  background: #00aabb; /* 可改成你想要的主題色 */
+  color: #fff;
+  padding: 0.6rem;
+  text-align: center;
+}
+
+/* 資料列 */
+.ranking-table tbody td {
+  padding: 0.5rem;
+  text-align: right;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+}
+
+/* 幣種欄靠左、粗體 */
+.ranking-table tbody .symbol {
+  text-align: left;
+  font-weight: 600;
+}
+
+/* 排名欄置中 */
+.ranking-table tbody td:first-child {
+  text-align: center;
+  width: 2rem;
+}
+
+/* 交替底色 */
+.ranking-table tbody tr:nth-child(odd) {
+  background: #f9f9f9;
+}
+/* 排行榜外層滾動容器 */
+.ranking-container {
+  max-height: 350px;
+  overflow-y: auto;
+  margin-top: 1rem;
+  background: #fff;
+  border-radius: 8px;
+}
+
+/* 排行榜表格 */
+.ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+/* 標題列 */
+.ranking-table thead th {
+  position: sticky;
+  top: 0;
+  background: #00aabb; /* 可改主題色 */
+  color: #fff;
+  padding: 0.6rem;
+  text-align: center;
+}
+
+/* 資料列 */
+.ranking-table tbody td {
+  padding: 0.5rem;
+  text-align: right;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+}
+
+/* 幣種欄靠左、粗體 */
+.ranking-table tbody .symbol {
+  text-align: left;
+  font-weight: 600;
+}
+
+/* 排名欄置中 */
+.ranking-table tbody td:first-child {
+  text-align: center;
+  width: 2rem;
+}
+
+/* 交替底色 */
+.ranking-table tbody tr:nth-child(odd) {
+  background: #f9f9f9;
+}
+/* 排行榜整體區塊留底部空間，避開固定按鈕 */
+#rankingSection {
+  margin-bottom: 120px;  /* 根據你的按鈕高度調整 */
+}
+
+/* 標題 + 下拉 */
+.ranking-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ranking-header h3 {
+  margin: 0;
+}
+.ranking-header label {
+  font-weight: 600;
+}
+
+/* 滾動容器 */
+.ranking-container {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 0.5rem;
+  background: #fff;
+  border-radius: 6px;
+}
+
+/* 表格 */
+.ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+/* 表頭固定 */
+.ranking-table thead th {
+  position: sticky;
+  top: 0;
+  background: #00aabb; /* 主題色 */
+  color: #fff;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+/* 表身儲存格 */
+.ranking-table tbody td {
+  padding: 0.4rem;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+  text-align: right;
+}
+
+/* 幣種欄左對齊 */
+.ranking-table tbody .symbol {
+  text-align: left;
+  font-weight: 600;
+}
+
+/* 排名欄置中 */
+.ranking-table tbody td:first-child {
+  text-align: center;
+  width: 2rem;
+}
+
+/* 交替底色 */
+.ranking-table tbody tr:nth-child(odd) {
+  background: #f9f9f9;
+}
+/* 表頭可點排序 */
+.ranking-table thead th.sortable {
+  cursor: pointer;
+  transition: background-color .2s;
+}
+.ranking-table thead th.sortable:hover {
+  background-color: rgba(255,255,255,0.2);
+}
+/* —— 排序按鈕 美化 —— */
+.sort-buttons {
+  margin: 0.5rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.sort-buttons button {
+  padding: 6px 14px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color .2s;
+}
+.sort-buttons button:hover {
+  background: #0056b3;
+}
+.sort-buttons button.active {
+  background: #0056b3;
+}
+
+/* —— 表格首欄（幣種）固定 —— */
+.ranking-table {
+  position: relative; /* 啟用 sticky */
+}
+/* —— 幣種欄 sticky —— */
+/* 1. 表頭 th */
+.ranking-table thead th:nth-child(2) {
+  position: sticky;
+  left: 0;
+  background: #00aabb;  /* 和主題色一樣 */
+  color: #fff;          /* 白字 */
+  z-index: 3;           /* 要比其他 thead th 高 */
+  box-shadow: 2px 0 5px -2px rgba(0,0,0,0.2);
+}
+
+/* 2. 表身 td */
+.ranking-table tbody td:nth-child(2) {
+  position: sticky;
+  left: 0;
+  background: #fff;     /* 白底 */
+  color: #333;          /* 深色字 */
+  z-index: 1;           /* 低於表頭 */
+  box-shadow: 2px 0 5px -2px rgba(0,0,0,0.1);
+}
+
+/* —— 讓表格能左右捲動 —— */
+.ranking-container {
+  overflow-x: auto;
+}
+
+/* --- 優化功能選單按鈕 --- */
+/* 1. 讓按鈕文字不換行 */
+.feature-menu-grid button {
+  white-space: nowrap;        /* 不要自動換行 */
+  overflow: hidden;           /* 超出的文字隱藏 */
+  text-overflow: ellipsis;    /* 末尾用「…」表示 */
+  padding: 12px 10px;         /* 縮小水平填充，讓文字有更多空間 */
+  font-size: 14px;            /* 微調字體大小 */
+}
+
+/* 2. 改成 3 欄顯示，讓文字不會太擠 */
+.feature-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);  /* 3 列均分 */
+  gap: 8px;                               /* 縮小間距 */
+  padding: 12px;                          /* 縮小整個內距 */
+}
+
+/* 3. 調整標題區域內邊距 */
+.feature-header, .feature-title {
+  padding: 12px 8px;
+  font-size: 18px;
+}
+
+/* 4. 縮小「關閉」按鈕，減少干擾 */
+.feature-close {
+  top: 8px;
+  right: 8px;
+  font-size: 18px;
+}
+/* ===== 修改功能選單：取消文字截斷，調整為兩欄顯示 ===== */
+.feature-menu-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important; /* 兩欄 */
+  gap: 12px !important;
+  padding: 16px !important;
+}
+
+.feature-menu-grid button {
+  white-space: normal !important;       /* 允許多行換行 */
+  overflow: visible !important;         /* 不隱藏文字 */
+  text-overflow: clip !important;       /* 不顯示省略號 */
+  padding: 12px 8px !important;         /* 增加上下內距，減少左右內距 */
+  font-size: 16px !important;           /* 字級微調 */
+  line-height: 1.3 !important;          /* 調整行高 */
+  min-height: 48px !important;          /* 可讓按鈕保持一致高度 */
+  text-align: center !important;
+}
+
+.feature-menu-grid button:hover {
+  background-color: #e6f7fa !important;  /* 滑過時輕微底色提示 */
+}
+/* 功能选单：USDT-SWAP 排行榜独占一整行 */
+.feature-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 16px;
+}
+
+/* 让文字自动换行，保持完整可读 */
+.feature-menu-grid button {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  padding: 12px;
+  font-size: 16px;
+  line-height: 1.3;
+  text-align: center;
+}
+
+/* USDT-SWAP 排行榜 按钮跨满两列 */
+.feature-menu-grid button[data-feature="ranking"] {
+  grid-column: 1 / -1;
+}
+
+/* 其余四个按钮自然两两并列，不需要额外样式 */
+/* 讓整個頁面底部多留點空間，避免被浮動按鈕擋住 */
+body {
+  padding-bottom: 120px;
+}
+
+/* 手動均價區塊美化 */
+#manualAvgSection {
+  background-color: #ffffff;
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* 標題 */
+#manualAvgSection h2 {
+  margin-top: 0;
+  font-size: 1.75rem;
+  color: #2c3e50;
+}
+
+/* 共用表單元件 */
+#manualAvgSection label,
+#manualAvgSection select,
+#manualAvgSection input,
+#manualAvgSection button {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+/* 輸入框 & 下拉選單 */
+#manualAvgSection select,
+#manualAvgSection input {
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* 新增一行按鈕 */
+#manualAvgSection #addEntry {
+  width: auto;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* 兩欄排列（價格+數量或 USDT） */
+#manualAvgSection .row {
+  display: flex;
+  gap: 10px;
+}
+#manualAvgSection .row input {
+  flex: 1;
+}
+
+/* 平均價結果文字 */
+#manualAvgSection .result {
+  margin-top: 16px;
+  font-weight: bold;
+  font-size: 1.25rem;
+  text-align: center;
+  color: #34495e;
+}

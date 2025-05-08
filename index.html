@@ -89,18 +89,28 @@
     </div>
   </div>
 
+   <!-- 顯示功能顯示區域-->
+   <div class="container">
+    <div id="manualAvgSection" style="display:none; margin: 20px 0;"></div>
+   </div>
+  <div id="rankingSection" class="ranking-section"></div>
+
   <button id="newFeatureBtn">🔧 功能</button>
   <button id="toggleHistoryBtn">📚 書籤</button>
 
-  <div id="historySidebar">
-    <h3>📖 書籤紀錄</h3>
-    <div id="bookmarkHistoryList"></div>
-  </div>
+  
+    <!-- 修正後的書籤側邊欄（ID 與 JS 同步） -->
+    <div id="historySidebar">
+      <h3>📖 書籤紀錄</h3>
+      <div id="historyList"></div>
+    </div>
+  
 
   <div id="featureMenu" class="feature-menu-hidden">
     <button id="featureCloseBtn" class="feature-close">×</button>
     <div class="feature-title">功能選單</div>
     <div class="feature-menu-grid">
+      <button data-feature="ranking">USDT-SWAP 排行榜</button>
       <button data-feature="manualAvg">手動均價計算</button>
       <button data-feature="specifiedAvg">指定均價計算</button>
       <button data-feature="quickRevenge">反擊速算表</button>
@@ -110,6 +120,7 @@
   </div>
 
   <!-- ✅ 修正過的 JS 路徑 -->
+  <script src="js/features/ranking.js"></script>
   <script src="js/calc.js"></script>
   <script src="js/history.js"></script>
   <script src="js/features/manualAvg.js"></script>
@@ -118,6 +129,8 @@
   <script src="js/features/advRevenge.js"></script>
   <script src="js/feature.js"></script>
   <script src="js/main.js"></script>
+
+
   
 
 
