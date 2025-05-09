@@ -337,3 +337,22 @@ function saveToHistory() {
   document.body.appendChild(ok);
   setTimeout(() => ok.remove(), 1500);
 }
+
+async function showLoginQRCode() {
+  try {
+    // 向 Serverless Function 取得授權網址
+    const resp = await fetch('/api/auth-url');
+    const { url } = await resp.json();
+    // 用 Google Chart API 產生 QR 圖片
+    const qrImg = `https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=${encodeURIComponent(url)}`;
+    // 把圖片插到畫面上
+    const container = document.getElementById('qrContainer');
+    container.innerHTML = `<img src="${qrImg}" alt="Scan to login" />`;
+  } catch (e) {
+    console.error(e);
+    alert('無法取得登入 QR，請稍後再試');
+  }
+}
+
+// 綁定按鈕
+document.getElementById('qrLoginBtn').addEventListener('click', showLoginQRCode);
