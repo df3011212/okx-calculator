@@ -340,19 +340,29 @@ function saveToHistory() {
 
 async function showLoginQRCode() {
   try {
-    // 向 Serverless Function 取得授權網址
+    // 1. 向自己後端拿 OAuth URL
     const resp = await fetch('/api/auth-url');
+    if (!resp.ok) throw new Error(`Status ${resp.status}`);
     const { url } = await resp.json();
-    // 用 Google Chart API 產生 QR 圖片
-    const qrImg = `https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=${encodeURIComponent(url)}`;
-    // 把圖片插到畫面上
-    const container = document.getElementById('qrContainer');
-    container.innerHTML = `<img src="${qrImg}" alt="Scan to login" />`;
-  } catch (e) {
-    console.error(e);
-    alert('無法取得登入 QR，請稍後再試');
+
+    // 2. 改用 QRServer 生成 QR
+    const qrImgUrl = [
+      'https://api.qrserver.com/v1/create-qr-code/',
+      '?size=200x200',
+      '&data=' + encodeURIComponent(url)
+    ].join('');
+
+    // 3. 把 <img> 插到頁面上
+    document.getElementById('qrContainer').innerHTML =
+      `<img src="${qrImgUrl}" alt="Scan to login" style="max-width:200px;display:block;margin:0 auto;" />`;
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById('qrContainer').innerHTML =
+      `<p style="color:red;">取得登入 QR 失敗：${err.message}</p>`;
   }
 }
+
 
 // 綁定按鈕
 document.getElementById('qrLoginBtn').addEventListener('click', showLoginQRCode);
