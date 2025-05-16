@@ -275,6 +275,7 @@ input[type="password"] {
     <option value="48">48 題(全部)</option>
   </select>
   <button onclick="generateQuestions()">🎲 產生題目</button>
+  <button id="resetBankBtn" class="btn">🔄 一鍵重置題庫</button>
 </div>
 
 
@@ -295,22 +296,14 @@ let selectedQuestions = [];
 const LS_KEY = "question_bank";
 
 
-function generateQuestions() {
-  const count = parseInt(document.getElementById("questionCount").value);
-  if (questions.length === 0) {
-    alert("題庫為空，無法出題！");
-    return;
-  }
-
-  if (count > questions.length) {
-    alert(`題庫只有 ${questions.length} 題，請選擇更少的題數`);
-    return;
-  }
-
-  // 洗牌並隨機取出 count 題
-  selectedQuestions = [...questions].sort(() => Math.random() - 0.5).slice(0, count);
-  renderQuestions(selectedQuestions);
-}
+document
+  .getElementById("resetBankBtn")
+  .addEventListener("click", () => {
+    if (confirm("確定要重置為完整的 48 題嗎？這會清除本機所有已存題庫。")) {
+      localStorage.removeItem(LS_KEY);
+      location.reload();
+    }
+  });
 
 
 function getDefaultQuestions() {
@@ -708,14 +701,133 @@ function getDefaultQuestions() {
     {
       "question": "弟弟為 SDD，哥哥為 OWU，任務為？",
       "options": [
-        "等待方向形成 DD",
+        "等待方向形成 DU",
         "方向 OWU，藍線回到0軸",
         "方向 OWU，碰到EMA52"
       ],
       "answer": [0]
-    }
+    },
+    {
+    "question": "弟弟為 WDD，哥哥為 SDD，哥哥的哥哥為 SDD，方向為 OWU，任務為？",
+    "options": [
+      "K棒回到弟弟 EMA52",
+      "K棒回到哥哥的哥哥 EMA52",
+      "哥哥的哥哥MACD，藍線回0軸",
+      "弟弟的MACD，藍線回到0軸"
+    ],
+    "answer": [0, 1]
+  },
+  {
+    "question": "弟弟為 WDD，哥哥為 SDD，哥哥的哥哥為 OWU，任務為？",
+    "options": [
+      "弟弟 MACD，藍線回到0軸",
+      "哥哥 MACD，藍線回到0軸",
+      "K棒回到弟弟的 EMA52",
+      "K棒跌到哥哥 EMA52"
+    ],
+    "answer": [0, 1, 2, 3]
+  },
+  {
+    "question": "弟弟為 WDD，哥哥為 SDD，哥哥的哥哥為 WDD，任務為？",
+    "options": [
+      "弟弟 MACD，藍線回到0軸",
+      "哥哥 MACD，藍線回到0軸",
+      "K棒回到弟弟的 EMA52",
+      "K棒跌到哥哥 EMA52"
+    ],
+    "answer": [0, 1, 2, 3]
+  },
+  {
+    "question": "弟弟為 WDD，哥哥為 SDD，哥哥的哥哥為 1STM，任務為？",
+    "options": [
+      "方向MACD，藍線回到0軸",
+      "K棒回到方向的EMA52",
+      "弟弟MACD，藍線回0軸",
+      "哥哥的哥哥，藍線回到0軸"
+    ],
+    "answer": [0, 1]
+  },
+  {
+    "question": "弟弟為 WDD，哥哥為 WDD，哥哥的哥哥為 OWU，任務為？",
+    "options": [
+      "哥哥MACD，藍線回到0軸",
+      "K棒回到哥哥的 EMA52",
+      "弟弟MACD回到0軸"
+    ],
+    "answer": [0, 1]
+  },
+  {
+    "question": "弟弟為 WDD，哥哥為 WDD，哥哥的哥哥為 1STM，任務為？",
+    "options": [
+      "方向 MACD 回到0軸",
+      "K棒回到方向的 EMA52",
+      "哥哥的K棒碰到，EMA52離場"
+    ],
+    "answer": [0, 1]
+  },
+  {
+    "question": "弟弟為 WDD，哥哥為 WDD，哥哥的哥哥為 SDD，方向為 OWU，任務為？",
+    "options": [
+      "方向的 MACD，藍線回到0軸",
+      "哥哥的哥哥 MACD，藍線回到0軸",
+      "K棒回到方向的 EMA52",
+      "K棒回到哥哥的哥哥 EMA52"
+    ],
+    "answer": [0, 1, 2, 3]
+  },
+  {
+    "question": "弟弟為 WDD，哥哥為 WDD，哥哥的哥哥為 WDD，任務為？",
+    "options": [
+      "哥哥 MACD，藍線回到0軸",
+      "或K棒回到哥哥的EMA52",
+      "或K棒回到弟弟的EMA52"
+    ],
+    "answer": [0, 1]
+  },
+  {
+    "question": "弟弟為 WDD，哥哥為 1STM，任務為？",
+    "options": [
+      "等待弟弟形成 DD",
+      "弟弟 MACD 藍線回到0軸"
+    ],
+    "answer": [0]
+  },
+  {
+    "question": "弟弟為 WDD，哥哥為 OWU，任務為？",
+    "options": [
+      "等待弟弟形成 DD",
+      "方向 MACD 藍線回到0軸"
+    ],
+    "answer": [0]
+  },
+  {
+    "question": "弟弟為 OWU，哥哥為 SDD，任務為？",
+    "options": [
+      "等待弟弟形成 DD",
+      "弟弟 MACD 藍線回到0軸"
+    ],
+    "answer": [0]
+  },
+  {
+    "question": "弟弟為 OWD，哥哥為 SDD，任務為？",
+    "options": [
+      "等待弟弟形成 DD",
+      "弟弟 MACD 藍線回到0軸"
+    ],
+    "answer": [0]
+  },
+  {
+    "question": "弟弟為 1STM，哥哥為 SDD，任務為？",
+    "options": [
+      "等待弟弟形成 DD",
+      "方向 MACD 藍線回到0軸"
+    ],
+    "answer": [0]
+  }
   ];
 }
+
+
 
 
 
@@ -922,6 +1034,25 @@ if (!questions.length) {
   document.getElementById("editor").value = JSON.stringify(questions, null, 2);
 }
 renderQuestions();
+
+  // 加在這裡：renderQuestions() & submitAnswers() 之後
+  function generateQuestions() {
+    let count = parseInt(document.getElementById("questionCount").value, 10);
+    count = Math.min(count, questions.length);
+    const shuffled = questions.slice().sort(() => Math.random() - 0.5);
+    selectedQuestions = shuffled.slice(0, count);
+    renderQuestions(selectedQuestions);
+  }
+
+  // 原本最下面的初始化
+  questions = [];
+  loadFromLocalStorage();
+  if (!questions.length) {
+    questions = getDefaultQuestions();
+    document.getElementById("editor").value = JSON.stringify(questions, null, 2);
+  }
+  // 一開始也可以自動產生題目，或留給使用者自己點
+  // generateQuestions();
 </script>
 
 </body>
