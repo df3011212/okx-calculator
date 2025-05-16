@@ -71,9 +71,15 @@
       display: none;
     }
     .result-box {
-      padding: 1rem;
-      border-radius: 0.75rem;
-      font-weight: bold;
+      width: auto;
+      max-width: 768px;    /* 和 .card 一樣的寬度限制 */
+      margin: 1rem auto;    /* 置中並上下留白 */
+      box-sizing: border-box;
+    }
+    @media (min-width: 800px) {
+  .result-box {
+    margin: 2rem auto;
+      }
     }
     .result-box.success {
       background: #d4edda;
@@ -178,6 +184,27 @@ input[type="password"] {
   float: right;
   border-radius: 0.5rem;
 }
+.result-box.error {
+  background-color: #fff3f3;
+  border: 1px solid #f5c2c7;
+  color: #842029;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.result-box.error ul {
+  padding-left: 1.2rem;
+  margin-top: 0.5rem;
+}
+
+.result-box.error li {
+  margin-bottom: 0.4rem;
+}
+
+
+
 @media (min-width: 768px) {
   body {
     padding: 1.5rem 2rem;
@@ -193,6 +220,13 @@ input[type="password"] {
     display: block;
   }
 }
+.correct-star {
+  color: #43a047;    /* OKX 綠 */
+  margin-left: 0.5rem;
+  font-size: 1.1rem;
+  vertical-align: middle;
+}
+
 
   </style>
 </head>
@@ -596,31 +630,49 @@ function renderQuestions(data = questions) {
   const raw = document.getElementById("editor").value;
   try {
     questions = JSON.parse(raw);
-  } catch(e) {
+  } catch (e) {
     alert("JSON 格式錯誤！請檢查。");
     return;
   }
   container.innerHTML = "";
-  data.forEach((q, idx) => {  
+
+  data.forEach((q, idx) => {
     const div = document.createElement("div");
     div.className = "card";
-    div.innerHTML = `<div class='question-title'>${idx+1}. ${q.question}` +
-      (editorUnlocked ? `<button class='delete-btn' onclick='deleteQuestion(${idx})'>刪除題目</button>` : "") +
-      `</div>` +
-      q.options.map((opt, i) => {
-        const inputType = q.answer.length > 1 ? "checkbox" : "radio";
-        const isCorrect = q.answer.includes(i);
-        const styleClass = editorUnlocked && isCorrect ? 'correct' : '';
-        return `<label class='${styleClass}'><input type='${inputType}' name='q${idx}' value='${i}'> ${opt}</label>`;
-      }).join("");
-      (editorUnlocked ? `<button class='delete-btn' onclick='deleteQuestion(${idx})'>刪除題目</button>` : "") +
-      `</div>` +
-      q.options.map((opt, i) => {
-        const inputType = q.answer.length > 1 ? "checkbox" : "radio";
-        return `<label><input type='${inputType}' name='q${idx}' value='${i}'> ${opt}</label>`;
-      }).join("");
+
+    // 先用 ol > li 產生有編號的選項 HTML
+    const optsHtml = `
+      <ul class="options">
+        ${q.options.map((opt, i) => {
+          const inputType = q.answer.length > 1 ? "checkbox" : "radio";
+          // 如果已解鎖，且這個選項是正確答案，就加星星
+          const star = editorUnlocked && q.answer.includes(i)
+            ? '<span class="correct-star">★</span>' 
+            : '';
+          return `
+            <li>
+              <label>
+                <input type="${inputType}" name="q${idx}" value="${i}">
+                ${i + 1}. ${opt}${star}
+              </label>
+            </li>`;
+        }).join("")}
+      </ul>
+    `;
+
+    // 把題目標題 + 選項一次塞進 div.innerHTML
+    div.innerHTML = `
+      <div class="question-title">
+        ${idx + 1}. ${q.question}
+        ${editorUnlocked ? `<button class="delete-btn" onclick="deleteQuestion(${idx})">刪除題目</button>` : ""}
+      </div>
+      ${optsHtml}
+    `;
+
     container.appendChild(div);
   });
+
+  // 隱藏結果區並同步更新編輯器內容
   document.getElementById("result").classList.add("hidden");
   document.getElementById("editor").value = JSON.stringify(questions, null, 2);
   saveToLocalStorage();
@@ -647,18 +699,21 @@ function submitAnswers() {
     resultBox.innerHTML = "🎉 全部答對！太強啦！";
   } else {
     resultBox.classList.add("error");
-    let detail = wrongList.map(n => `第 ${n} 題`).join("、");
-    resultBox.innerHTML = `❌ 有錯誤：${detail}<br><br>`;
-    wrongList.forEach(n => {
-      const correctAns = selectedQuestions[n-1].answer
-      .slice() // 避免修改原本排序
-      .sort((a, b) => a - b)
-      .map(i => selectedQuestions[n-1].options[i])
-      .join("、");
+    let detailList = wrongList.map(n => {
+      const correctAns = selectedQuestions[n - 1].answer
+        .slice()
+        .sort((a, b) => a - b)
+        .map(i => selectedQuestions[n - 1].options[i])
+        .join("、");
+      return `<li>❌ 第 ${n} 題｜✅ 正確答案：${correctAns}</li>`;
+    }).join("");
 
-      resultBox.innerHTML += `✅ 第 ${n} 題正確答案：${correctAns}<br>`;
-    });
+    resultBox.innerHTML = `
+      ❌ 有錯誤題目：第 ${wrongList.join("、")} 題
+      <ul>${detailList}</ul>
+    `;
   }
+
 }
 
 function addQuestion() {
