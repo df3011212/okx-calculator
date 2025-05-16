@@ -263,7 +263,7 @@ input[type="password"] {
 
 <!-- 題目產出區 -->
 <div class="card">
-  <h2>🎯 請選擇要出幾題</h2>
+  <h2>🎯 判斷做多/做空離場點-考試題目 ，多+空題目總數48題</h2>
   <label for="questionCount">題數：</label>
   <select id="questionCount">
     <option value="1">1 題</option>
@@ -271,6 +271,8 @@ input[type="password"] {
     <option value="3">3 題</option>
     <option value="5">5 題</option>
     <option value="10">10 題</option>
+    <option value="24">24 題(一半)</option>
+    <option value="48">48 題(全部)</option>
   </select>
   <button onclick="generateQuestions()">🎲 產生題目</button>
 </div>
@@ -311,11 +313,14 @@ function generateQuestions() {
 }
 
 
-
-
 function getDefaultQuestions() {
   return [
-    {
+//做多的題目
+//做多的題目
+//做多的題目
+//做多的題目
+//做多的題目
+{
     "question": "弟弟為 SDU，方向為 SDU，哥哥為 SDU，哥哥的哥哥為 OWD，任務為？",
     "options": [
       "MACD 黃線穿越 EMA20",
@@ -601,9 +606,119 @@ function getDefaultQuestions() {
     "answer": [
       0
     ]
-  }
+  },
+//做空的題目
+//做空的題目
+//做空的題目
+//做空的題目
+//做空的題目
+    {
+      "question": "弟弟為 SDD，哥哥為 SDD，哥哥的哥哥為 SDD，方向為 OWU，任務為？",
+      "options": [
+        "K棒跌到哥哥的哥哥的 EMA52",
+        "K棒漲到哥哥的哥哥的 EMA52",
+        "方向MACD 藍線回到0軸"
+      ],
+      "answer": [0]
+    },
+    {
+      "question": "弟弟為 SDD，哥哥為 SDD，哥哥的哥哥為 OWU，任務為？",
+      "options": [
+        "K棒跌到哥哥的 EMA52",
+        "K棒漲到哥哥的 EMA52",
+        "哥哥 MACD 藍線回到0軸"
+      ],
+      "answer": [0]
+    },
+    {
+      "question": "弟弟為 SDD，哥哥為 SDD，哥哥的哥哥為 WDD，任務為？",
+      "options": [
+        "哥哥MACD藍線回到0軸",
+        "K棒 回到哥哥EMA52",
+        "K棒回到哥哥的RSI 30為離場點"
+      ],
+      "answer": [0, 1]
+    },
+    {
+      "question": "弟弟為 SDD，哥哥為 SDD，哥哥的哥哥為 1STM，任務為？",
+      "options": [
+        "K棒回到方向EMA52",
+        "哥哥的MACD，藍線回到0軸"
+      ],
+      "answer": [0]
+    },
+    {
+      "question": "弟弟為 SDD，哥哥為 WDD，哥哥的哥哥為 OWD，任務為？",
+      "options": [
+        "方向 MACD 藍線回到0軸",
+        "K棒回到方向的EMA52",
+        "哥哥 MACD 藍線回到0軸",
+        "K棒回到哥哥的EMA52"
+      ],
+      "answer": [0, 1]
+    },
+    {
+      "question": "弟弟為 SDD，哥哥為 WDD，哥哥的哥哥為 OWU，任務為？",
+      "options": [
+        "方向 MACD 藍線回到0軸",
+        "K棒回到方向的EMA52",
+        "哥哥 MACD 藍線回到0軸",
+        "K棒回到哥哥的EMA52"
+      ],
+      "answer": [0, 1]
+    },
+    {
+      "question": "弟弟為 SDD，哥哥為 WDD，哥哥的哥哥為 1STM，任務為？",
+      "options": [
+        "方向 MACD 藍線回到0軸",
+        "K棒回到方向的EMA52",
+        "哥哥 MACD 藍線回到0軸",
+        "K棒回到哥哥的EMA52"
+      ],
+      "answer": [0, 1]
+    },
+    {
+      "question": "弟弟為 SDD，哥哥為 WDD，哥哥的哥哥為 SDD，方向為 OWU，任務為？",
+      "options": [
+        "方向 MACD藍線回到0軸",
+        "K棒回到方向的 EMA52",
+        "K棒跌到哥哥的哥哥 EMA52",
+        "K棒回高弟弟的 EMA52"
+      ],
+      "answer": [0, 1, 2]
+    },
+    {
+      "question": "弟弟為 SDD，哥哥為 WDD，哥哥的哥哥為 WDD，任務為？",
+      "options": [
+        "方向MACD，藍線回到0軸",
+        "哥哥MACD，藍線回到0軸",
+        "K棒回到方向的 EMA52",
+        "K棒回到哥哥 EMA52"
+      ],
+      "answer": [0, 1, 2, 3]
+    },
+    {
+      "question": "弟弟為 SDD，哥哥為 1STM，任務為？",
+      "options": [
+        "等待方向形成 DU",
+        "方向 1STM，藍線回到0軸"
+      ],
+      "answer": [0]
+    },
+    {
+      "question": "弟弟為 SDD，哥哥為 OWU，任務為？",
+      "options": [
+        "等待方向形成 DD",
+        "方向 OWU，藍線回到0軸",
+        "方向 OWU，碰到EMA52"
+      ],
+      "answer": [0]
+    }
   ];
 }
+
+
+
 
 function loadFromLocalStorage() {
   const saved = localStorage.getItem(LS_KEY);
