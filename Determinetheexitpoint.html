@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>題目編輯器 & 解題系統</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      padding: 0 1rem;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.75rem;
+      margin: 1.5rem 0;
+    }
+    .card {
+      background-color: #fff;
+      border-radius: 1rem;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+    .question-title {
+      font-weight: bold;
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .options label {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1rem;
+      background: #eef2f7;
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      border: 1px solid #ccc;
+    }
+    .options input[type="radio"],
+    .options input[type="checkbox"] {
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+    .correct {
+      background-color: #e8f5e9;
+      border-color: #43a047;
+    }
+    .incorrect {
+      background-color: #fdecea;
+      border-color: #e53935;
+    }
+    .editor-area textarea {
+      width: 100%;
+      height: 300px;
+      font-size: 1rem;
+      padding: 1rem;
+      border-radius: 0.75rem;
+      border: 1px solid #ccc;
+      font-family: monospace;
+    }
+    .hidden {
+      display: none;
+    }
+    .result-box {
+      padding: 1rem;
+      border-radius: 0.75rem;
+      font-weight: bold;
+    }
+    .result-box.success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .result-box.error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    button {
+      padding: 0.6rem 1.2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+    }
+    .submit-btn {
+      background-color: #2563eb;
+      color: #fff;
+      width: 100%;
+    }
+    .admin-tools,
+    #unlockCard {
+      margin-bottom: 1.5rem;
+    }
+    select,
+    input[type="text"],
+    input[type="password"] {
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      width: auto;
+    }
+    .delete-btn {
+      background-color: #dc3545;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.9rem;
+      float: right;
+      border-radius: 0.5rem;
+    }
+    @media (min-width: 768px) {
+      body {
+        padding: 1.5rem 2rem;
+      }
+      .card {
+        max-width: 720px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .submit-btn {
+        max-width: 720px;
+        margin: 0 auto;
+        display: block;
+      }
+    }
+    .editor-area textarea {
+  width: 100%;
+  height: 300px;
+  font-size: 1rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid #ccc;
+  font-family: monospace;
+}
+.hidden {
+  display: none;
+}
+button {
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+}
+.submit-btn {
+  background-color: #2563eb;
+  color: #fff;
+  width: 100%;
+}
+.admin-tools,
+#unlockCard {
+  margin-bottom: 1.5rem;
+}
+select,
+input[type="text"],
+input[type="password"] {
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  width: auto;
+}
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.9rem;
+  float: right;
+  border-radius: 0.5rem;
+}
+@media (min-width: 768px) {
+  body {
+    padding: 1.5rem 2rem;
+  }
+  .card {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .submit-btn {
+    max-width: 720px;
+    margin: 0 auto;
+    display: block;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+<h1>🧠 題目編輯器 & 解題系統</h1>
+
+<div class="card admin-tools" id="adminPanel" style="display:none">
+  <h2>➕ 題目管理工具</h2>
+  <label>新增題目類型：
+    <select id="newType">
+      <option value="single">單選題</option>
+      <option value="multiple">多選題</option>
+    </select>
+  </label>
+  <button onclick="addQuestion()">新增題目</button>
+  <button onclick="logout()">🚪 登出</button>
+</div>
+
+<!-- 密碼驗證區 -->
+<div class="card" id="unlockCard">
+  <h2>🔐 請輸入密碼以編輯題目</h2>
+  <input type="password" id="passwordInput" placeholder="輸入密碼">
+  <button onclick="unlockEditor()">解鎖</button>
+</div>
+
+<!-- 題目編輯區 -->
+<div class="card editor-area hidden" id="editorCard">
+  <h2>✏️ 編輯題目（JSON 格式）</h2>
+  <textarea id="editor"></textarea>
+  <button onclick="renderQuestions()">🔄 重新載入題目</button>
+</div>
+
+
+<!-- 題目產出區 -->
+<div class="card">
+  <h2>🎯 請選擇要出幾題</h2>
+  <label for="questionCount">題數：</label>
+  <select id="questionCount">
+    <option value="1">1 題</option>
+    <option value="2">2 題</option>
+    <option value="3">3 題</option>
+    <option value="5">5 題</option>
+    <option value="10">10 題</option>
+  </select>
+  <button onclick="generateQuestions()">🎲 產生題目</button>
+</div>
+
+
+
+<!-- 解題結果提示 -->
+<div id="result" class="result-box hidden"></div>
+
+<!-- 題目呈現區 -->
+<div id="questions"></div>
+
+<!-- 送出答案按鈕 -->
+<button class="submit-btn" onclick="submitAnswers()">✅ 送出答案</button>
+
+<script>
+let questions = [];
+let editorUnlocked = false;
+let selectedQuestions = [];
+const LS_KEY = "question_bank";
+
+
+function generateQuestions() {
+  const count = parseInt(document.getElementById("questionCount").value);
+  if (questions.length === 0) {
+    alert("題庫為空，無法出題！");
+    return;
+  }
+
+  if (count > questions.length) {
+    alert(`題庫只有 ${questions.length} 題，請選擇更少的題數`);
+    return;
+  }
+
+  // 洗牌並隨機取出 count 題
+  selectedQuestions = [...questions].sort(() => Math.random() - 0.5).slice(0, count);
+  renderQuestions(selectedQuestions);
+}
+
+
+
+
+function getDefaultQuestions() {
+  return [
+    {
+      "question": "弟弟為 SDU，方向為 SDU，哥哥為 SDU，哥哥的哥哥為 OWD，任務為？",
+      "options": ["K棒漲到哥哥的哥哥的EMA52", "MACD 黃線穿越 EMA20", "RSI 上穿50"],
+      "answer": [0]
+    },
+    {
+      "question": "弟弟為 SDU，方向為 SDU，哥哥為 OWD，任務為？",
+      "options": ["K棒漲到哥哥EMA52", "K棒跌破布林通道下軌", "均線糾結突破"],
+      "answer": [0]
+    }
+  ];
+}
+
+function loadFromLocalStorage() {
+  const saved = localStorage.getItem(LS_KEY);
+  if (saved) {
+    try {
+      questions = JSON.parse(saved);
+      document.getElementById("editor").value = JSON.stringify(questions, null, 2);
+    } catch (e) {
+      console.warn("localStorage 載入失敗：", e);
+    }
+  }
+}
+
+function saveToLocalStorage() {
+  try {
+    localStorage.setItem(LS_KEY, document.getElementById("editor").value);
+  } catch (e) {
+    alert("儲存失敗！");
+  }
+}
+
+function renderQuestions(data = questions) {
+  const container = document.getElementById("questions");
+  const raw = document.getElementById("editor").value;
+  try {
+    questions = JSON.parse(raw);
+  } catch(e) {
+    alert("JSON 格式錯誤！請檢查。");
+    return;
+  }
+  container.innerHTML = "";
+  data.forEach((q, idx) => {  
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `<div class='question-title'>${idx+1}. ${q.question}` +
+      (editorUnlocked ? `<button class='delete-btn' onclick='deleteQuestion(${idx})'>刪除題目</button>` : "") +
+      `</div>` +
+      q.options.map((opt, i) => {
+        const inputType = q.answer.length > 1 ? "checkbox" : "radio";
+        const isCorrect = q.answer.includes(i);
+        const styleClass = editorUnlocked && isCorrect ? 'correct' : '';
+        return `<label class='${styleClass}'><input type='${inputType}' name='q${idx}' value='${i}'> ${opt}</label>`;
+      }).join("");
+      (editorUnlocked ? `<button class='delete-btn' onclick='deleteQuestion(${idx})'>刪除題目</button>` : "") +
+      `</div>` +
+      q.options.map((opt, i) => {
+        const inputType = q.answer.length > 1 ? "checkbox" : "radio";
+        return `<label><input type='${inputType}' name='q${idx}' value='${i}'> ${opt}</label>`;
+      }).join("");
+    container.appendChild(div);
+  });
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("editor").value = JSON.stringify(questions, null, 2);
+  saveToLocalStorage();
+}
+
+function submitAnswers() {
+  let allCorrect = true;
+  const wrongList = [];
+  selectedQuestions.forEach((q, idx) => {
+    const selected = Array.from(document.querySelectorAll(`input[name='q${idx}']`))
+      .filter(i => i.checked).map(i => parseInt(i.value));
+    const correct = q.answer.sort().join(',');
+    const given = selected.sort().join(',');
+    if (correct !== given) {
+      allCorrect = false;
+      wrongList.push(idx + 1);
+    }
+  });
+  const resultBox = document.getElementById("result");
+  resultBox.classList.remove("hidden", "success", "error");
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (allCorrect) {
+    resultBox.classList.add("success");
+    resultBox.innerHTML = "🎉 全部答對！太強啦！";
+  } else {
+    resultBox.classList.add("error");
+    let detail = wrongList.map(n => `第 ${n} 題`).join("、");
+    resultBox.innerHTML = `❌ 有錯誤：${detail}<br><br>`;
+    wrongList.forEach(n => {
+      const correctAns = selectedQuestions[n-1].answer
+      .slice() // 避免修改原本排序
+      .sort((a, b) => a - b)
+      .map(i => selectedQuestions[n-1].options[i])
+      .join("、");
+
+      resultBox.innerHTML += `✅ 第 ${n} 題正確答案：${correctAns}<br>`;
+    });
+  }
+}
+
+function addQuestion() {
+  const type = document.getElementById("newType").value;
+  const isMulti = type === "multiple";
+  const newQ = {
+    question: isMulti ? "請輸入多選題問題（可複選）" : "請輸入單選題問題",
+    options: ["選項 A", "選項 B", "選項 C"],
+    answer: isMulti ? [0, 1] : [0]
+  };
+  try {
+    questions = JSON.parse(document.getElementById("editor").value);
+  } catch (e) {
+    questions = [
+    {
+      "question": "弟弟為 SDU，方向為 SDU，哥哥為 SDU，哥哥的哥哥為 OWD，任務為？",
+      "options": ["MACD 黃線穿越 EMA20", "K棒漲到哥哥的哥哥的EMA52", "RSI 上穿50"],
+      "answer": [1]
+    },
+    {
+      "question": "弟弟為 SDU，方向為 SDU，哥哥為 OWD，任務為？",
+      "options": ["K棒漲到哥哥EMA52", "K棒跌破布林通道下軌", "均線糾結突破"],
+      "answer": [0]
+    },
+    {
+      "question": "弟弟為 SDU，方向為 SDU，哥哥為 WDU，任務為？（可複選）",
+      "options": ["哥哥 MACD 藍線回到0軸", "K棒回到哥哥 EMA52", "K棒漲到哥哥的哥哥的EMA52"],
+      "answer": [0, 1]
+    },
+    {
+      "question": "弟弟為 SDU，方向為 SDU，哥哥為 1STM，任務為？",
+      "options": ["K棒回到方向的 EMA52", "K棒跌破方向的 EMA52", "RSI 上穿50"],
+      "answer": [0]
+    },
+    {
+      "question": "弟弟為 SDU，方向為 WDU，哥哥為 OWD，任務為？（可複選）",
+      "options": ["方向 MACD 藍線回到0軸", "K棒回到方向的 EMA52", "此選項為干擾項"],
+      "answer": [0, 1]
+    },
+    {
+      "question": "弟弟為 SDU，方向為 WDU，哥哥為 OWU，任務為？（可複選）",
+      "options": ["方向 MACD 藍線回到0軸", "K棒回到方向的 EMA52", "K棒觸及週期高點"],
+      "answer": [0, 1]
+    },
+    {
+      "question": "弟弟為 SDU，方向為 WDU，哥哥為 1STM，任務為？（可複選）",
+      "options": ["方向 MACD 藍線回到0軸", "K棒回到方向的 EMA52", "K棒跌破昨日低點"],
+      "answer": [0, 1]
+    }
+  ];
+  }
+  questions.push(newQ);
+  document.getElementById("editor").value = JSON.stringify(questions, null, 2);
+  renderQuestions();
+}
+
+function deleteQuestion(index) {
+  if (confirm("確定要刪除第 " + (index + 1) + " 題嗎？")) {
+    questions.splice(index, 1);
+    document.getElementById("editor").value = JSON.stringify(questions, null, 2);
+    renderQuestions();
+  }
+}
+
+function unlockEditor() {
+  const input = document.getElementById("passwordInput").value;
+  const encoded = btoa(input);
+  if (encoded === "MDUwOA==") {
+    editorUnlocked = true;
+    document.getElementById("unlockCard").classList.add("hidden");
+    document.getElementById("editorCard").classList.remove("hidden");
+    document.getElementById("adminPanel").style.display = "block";
+    renderQuestions();
+  } else {
+    alert("密碼錯誤！");
+  }
+}
+
+function logout() {
+  editorUnlocked = false;
+  document.getElementById("editorCard").classList.add("hidden");
+  document.getElementById("adminPanel").style.display = "none";
+  document.getElementById("unlockCard").classList.remove("hidden");
+  renderQuestions();
+}
+
+questions = [];
+loadFromLocalStorage();
+if (!questions.length) {
+  questions = getDefaultQuestions();
+  document.getElementById("editor").value = JSON.stringify(questions, null, 2);
+}
+renderQuestions();
+</script>
+
+</body>
+</html>

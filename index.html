@@ -89,6 +89,14 @@
     </div>
   </div>
 
+ <!-- 中央開啟新畫面-->
+  <div id="examOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:9999;">
+  <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:90%; max-width:960px; height:90%; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.25);">
+    <iframe src="Determinetheexitpoint.html" style="width:100%; height:100%; border:none;"></iframe>
+    <button onclick="closeExam()" style="position:absolute; top:10px; right:10px; background:#dc3545; color:white; border:none; border-radius:8px; padding:0.5rem 1rem; cursor:pointer;">✖ 關閉</button>
+  </div>
+</div>
+
    <!-- 顯示功能顯示區域-->
    <div class="container">
     <div id="manualAvgSection" style="display:none; margin: 20px 0;"></div>
@@ -115,9 +123,19 @@
       <button data-feature="specifiedAvg">指定均價計算</button>
       <button data-feature="quickRevenge">反擊速算表</button>
       <button data-feature="advRevenge">高級反擊速算表</button>
+      <button onclick="openExam()">📘 考試系統</button>
     </div>
     <div id="featureContent" style="display:none;"></div>
   </div>
+
+    <script>
+function openExam() {
+  document.getElementById("examOverlay").style.display = "block";
+}
+function closeExam() {
+  document.getElementById("examOverlay").style.display = "none";
+}
+</script>
 
   <!-- ✅ 修正過的 JS 路徑 -->
   <script src="js/features/ranking.js"></script>
