@@ -282,15 +282,292 @@ function generateQuestions() {
 function getDefaultQuestions() {
   return [
     {
-      "question": "弟弟為 SDU，方向為 SDU，哥哥為 SDU，哥哥的哥哥為 OWD，任務為？",
-      "options": ["K棒漲到哥哥的哥哥的EMA52", "MACD 黃線穿越 EMA20", "RSI 上穿50"],
-      "answer": [0]
-    },
-    {
-      "question": "弟弟為 SDU，方向為 SDU，哥哥為 OWD，任務為？",
-      "options": ["K棒漲到哥哥EMA52", "K棒跌破布林通道下軌", "均線糾結突破"],
-      "answer": [0]
-    }
+    "question": "弟弟為 SDU，方向為 SDU，哥哥為 SDU，哥哥的哥哥為 OWD，任務為？",
+    "options": [
+      "MACD 黃線穿越 EMA20",
+      "K棒漲到哥哥的哥哥的EMA52",
+      "RSI 上穿50"
+    ],
+    "answer": [
+      1
+    ]
+  },
+  {
+    "question": "弟弟為 SDU，方向為 SDU，哥哥為 OWD，任務為？",
+    "options": [
+      "K棒漲到哥哥EMA52",
+      "K棒跌破布林通道下軌",
+      "均線糾結突破"
+    ],
+    "answer": [
+      0
+    ]
+  },
+  {
+    "question": "弟弟為 SDU，方向為 SDU，哥哥為 WDU，任務為？（可複選）",
+    "options": [
+      "哥哥 MACD 藍線回到0軸",
+      "K棒回到哥哥 EMA52",
+      "K棒漲到哥哥的哥哥的EMA52"
+    ],
+    "answer": [
+      0,
+      1
+    ]
+  },
+  {
+    "question": "弟弟為 SDU，方向為 SDU，哥哥為 1STM，任務為？",
+    "options": [
+      "K棒回到方向的 EMA52",
+      "K棒跌破方向的 EMA52",
+      "RSI 上穿50"
+    ],
+    "answer": [
+      0
+    ]
+  },
+  {
+    "question": "弟弟為 SDU，方向為 WDU，哥哥為 OWD，任務為？（可複選）",
+    "options": [
+      "方向 MACD 藍線回到0軸",
+      "K棒回到方向的 EMA52",
+      "哥哥MACD藍線回到0軸"
+    ],
+    "answer": [
+      0,
+      1
+    ]
+  },
+  {
+    "question": "弟弟為 SDU，方向為 WDU，哥哥為 OWU，任務為？（可複選）",
+    "options": [
+      "方向 MACD 藍線回到0軸",
+      "K棒回到方向的 EMA52",
+      "棒漲到哥哥的哥哥的EMA52"
+    ],
+    "answer": [
+      0,
+      1
+    ]
+  },
+  {
+    "question": "弟弟為 SDU，方向為 WDU，哥哥為 1STM，任務為？（可複選）",
+    "options": [
+      "方向 MACD 藍線回到0軸",
+      "K棒回到方向的 EMA52",
+      "等待方向成為 DU"
+    ],
+    "answer": [
+      0,
+      1
+    ]
+  },
+  {
+    "question": "弟弟為 SDU，方向為 WDU，哥哥為 SDU，哥哥的哥哥為 OWD，任務為？（可複選）",
+    "options": [
+      "K棒 MACD 藍線回到0軸",
+      "K棒回到方向的EMA52",
+      "K棒漲到哥哥的哥哥的EMA52"
+    ],
+    "answer": [
+      0,
+      1,
+      2
+    ]
+  },
+  {
+    "question": "弟弟為 SDU，方向為 WDU，哥哥為 WDU，任務為？（可複選）",
+    "options": [
+      "方向MACD藍線回到0軸",
+      "哥哥MACD藍線回到0軸",
+      "K棒回到方向的EMA52",
+      "K棒回到哥哥的EMA52"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "question": "弟弟為 SDU，方向為 1STM，任務為？",
+    "options": [
+      "等待方向成為 DU",
+      "K棒跌破 MA60",
+      "MACD 死亡交叉"
+    ],
+    "answer": [
+      0
+    ]
+  },
+  {
+    "question": "弟弟為 SDU，方向為 OWD，任務為？",
+    "options": [
+      "等待方向成為 DU",
+      "K棒跌破 MA60",
+      "RSI 跌破 30"
+    ],
+    "answer": [
+      0
+    ]
+  },
+  {
+    "question": "弟弟為 WDU，方向為 SDU，哥哥為 SDU，哥哥的哥哥為 OWD，任務為？（可複選）",
+    "options": [
+      "K棒回到弟弟的 EMA52",
+      "K棒回到哥哥的哥哥 EMA52",
+      "RSI 高於 70"
+    ],
+    "answer": [
+      0,
+      1
+    ]
+  },
+  {
+    "question": "弟弟為 WDU，方向為 SDU，哥哥為 OWD，任務為？（可複選）",
+    "options": [
+      "弟弟 MACD 藍線回到0軸",
+      "哥哥 MACD 藍線回到0軸",
+      "K棒 回到 弟弟的EMA52",
+      "K棒 漲到 哥哥的EMA52"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "question": "弟弟為 WDU，方向為 SDU，哥哥為 WDU，任務為？（可複選）",
+    "options": [
+      "弟弟 MACD 藍線回到0軸",
+      "哥哥 MACD 藍線回到0軸",
+      "K棒 回到 弟弟的EMA52",
+      "K棒 漲到 哥哥的EMA52"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "question": "弟弟為 WDU，方向為 SDU，哥哥為 1STM，任務為？（可複選）",
+    "options": [
+      "方向 MACD 藍線回到0軸",
+      "K棒回到方向的EMA52"
+    ],
+    "answer": [
+      0,
+      1
+    ]
+  },
+  {
+    "question": "弟弟為 WDU，方向為 WDU，哥哥為 OWD，任務為？（可複選）",
+    "options": [
+      "哥哥 MACD 藍線回到0軸",
+      "K棒回到哥哥的EMA52"
+    ],
+    "answer": [
+      0,
+      1
+    ]
+  },
+  {
+    "question": "弟弟為 WDU，方向為 WDU，哥哥為 1STM，任務為？（可複選）",
+    "options": [
+      "方向 MACD藍線回到0軸",
+      "K棒回到方向的EMA52"
+    ],
+    "answer": [
+      0,
+      1
+    ]
+  },
+  {
+    "question": "弟弟為 WDU，方向為 WDU，哥哥為 SDU，哥哥的哥哥為 OWD，任務為？（可複選）",
+    "options": [
+      "方向 MACD 藍線回到0軸",
+      "哥哥的哥哥 MACD藍線回到0軸",
+      "K棒回到方向的EMA52",
+      "K棒回到哥哥的哥哥的EMA52"
+    ],
+    "answer": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  {
+    "question": "弟弟為 WDU，方向為 WDU，哥哥為 WDU，任務為？（可複選）",
+    "options": [
+      "哥哥 MACD 藍線回到0軸",
+      "K棒回到哥哥的EMA52"
+    ],
+    "answer": [
+      0,
+      1
+    ]
+  },
+  {
+    "question": "弟弟為 WDU，方向為 1STM，任務為？",
+    "options": [
+      "等待方向形成DU",
+      "K棒收斂至 EMA20",
+      "MACD 死亡交叉"
+    ],
+    "answer": [
+      0
+    ]
+  },
+  {
+    "question": "弟弟為 WDU，方向為 OWD，任務為？",
+    "options": [
+      "等待方向形成DU",
+      "RSI 跌破 30",
+      "布林通道縮口"
+    ],
+    "answer": [
+      0
+    ]
+  },
+  {
+    "question": "弟弟為 OWU，方向為 SDU，任務為？",
+    "options": [
+      "等待弟弟形成DU",
+      "K棒觸及上影線高點",
+      "MACD 雙線貼合"
+    ],
+    "answer": [
+      0
+    ]
+  },
+  {
+    "question": "弟弟為 OWD，方向為 SDU，任務為？",
+    "options": [
+      "等待弟弟形成DU",
+      "成交量突破日均值",
+      "EMA24 向下彎頭"
+    ],
+    "answer": [
+      0
+    ]
+  },
+  {
+    "question": "弟弟為 1STM，方向為 SDU，任務為？",
+    "options": [
+      "等待弟弟形成DU",
+      "K棒突破 MA10",
+      "RSI 上穿 70"
+    ],
+    "answer": [
+      0
+    ]
+  }
   ];
 }
 
