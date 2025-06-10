@@ -64,7 +64,8 @@
         <!-- 新增：資金費率顯示區 -->
         <div id="funding-rate-container" style="margin-top: 8px; font-weight: bold;">
         資金費率：<span id="funding-rate" style="color:gray;">讀取中...</span>
-        <div id="funding-rate-classification" style="margin-top: 4px; font-size: 14px;"></div>
+        <div id="funding-rate-long" style="margin-top: 4px; font-size: 14px;"></div>
+        <div id="funding-rate-short" style="margin-top: 2px; font-size: 14px;"></div>
       </div>
 
       </div>
@@ -149,64 +150,113 @@ async function fetchFundingRate(symbol) {
     const data = await response.json();
     if (data?.data?.length > 0) {
       const rate = parseFloat(data.data[0].fundingRate);
-      const percentText = (rate * 100).toFixed(4) + '%';
-      const rateSpan = document.getElementById("funding-rate");
-      const classificationDiv = document.getElementById("funding-rate-classification");
+      const ratePercent = +(rate * 100).toFixed(6); // 修正浮點數誤差
+      const percentText = ratePercent.toFixed(4) + '%';
 
-      // 顯示資金費率數值
-      rateSpan.textContent = percentText;
-      rateSpan.style.color = rate > 0 ? "green" : rate < 0 ? "red" : "gray";
+      document.getElementById("funding-rate").textContent = percentText;
+      document.getElementById("funding-rate").style.color = rate > 0 ? "green" : rate < 0 ? "red" : "gray";
 
-      // 判斷區間分類
-      const absRate = rate * 100;
+      const longDiv = document.getElementById("funding-rate-long");
+      const shortDiv = document.getElementById("funding-rate-short");
       const isBTC = symbol.startsWith("BTC");
 
-      let classification = '';
-      let color = '';
+      let longClass = '', longStrategy = '', longColor = '';
+      let shortClass = '', shortStrategy = '', shortColor = '';
 
       if (isBTC) {
-        if (rate >= -0.01 && rate <= 0.03) {
-          classification = '✅ 正常（可交易）';
-          color = 'green';
-        } else if ((rate > 0.03 && rate <= 0.2) || (rate < -0.01 && rate >= -0.03)) {
-          classification = '⚠️ 非正常（短線區）';
-          color = 'orange';
-        } else if ((rate > 0.2 && rate <= 0.375) || (rate < -0.2 && rate >= -0.375)) {
-          classification = '❗ 特殊（易洗盤，風險高）';
-          color = 'red';
+        // BTC 做多
+        if (ratePercent >= -0.01 && ratePercent <= 0.03) {
+          longClass = '✅ 正常（建議可交易）';
+          longColor = 'green';
+        } else if ((ratePercent > 0.03 && ratePercent <= 0.2) || (ratePercent < -0.01 && ratePercent >= -0.03)) {
+          longClass = '⚠️ 非正常（高成本區）';
+          longColor = 'orange';
+        } else if ((ratePercent > 0.2 && ratePercent <= 0.375) || (ratePercent < -0.2 && ratePercent >= -0.375)) {
+          longClass = '❗ 特殊（高風險，勿追高）';
+          longColor = 'red';
         } else {
-          classification = '❓ 超出範圍';
-          color = 'gray';
+          longClass = '🟡 不在定義範圍';
+          longColor = 'gray';
         }
-      } else {
-        if (rate >= -0.02 && rate <= 0.06) {
-          classification = '✅ 正常（可交易）';
-          color = 'green';
-        } else if ((rate > 0.06 && rate <= 0.4) || (rate < -0.02 && rate >= -0.4)) {
-          classification = '⚠️ 非正常（短線區）';
-          color = 'orange';
-        } else if ((rate > 0.4 && rate <= 0.75) || (rate < -0.4 && rate >= -0.75)) {
-          classification = '❗ 特殊（易洗盤，風險高）';
-          color = 'red';
+
+        // BTC 做空（獨立）
+        if (ratePercent >= -0.01 && ratePercent <= 0.03) {
+          shortClass = '✅ 正常（建議可交易）';
+          shortColor = 'green';
+        } else if ((ratePercent > 0.03 && ratePercent <= 0.2) || (ratePercent < -0.01 && ratePercent >= -0.03)) {
+          shortClass = '⚠️ 非正常（高成本區）';
+          shortColor = 'orange';
+        } else if ((ratePercent > 0.2 && ratePercent <= 0.375) || (ratePercent < -0.2 && ratePercent >= -0.375)) {
+          shortClass = '❗ 特殊（高風險，勿追高）';
+          shortColor = 'red';
         } else {
-          classification = '❓ 超出範圍';
-          color = 'gray';
+          shortClass = '🟡 不在定義範圍';
+          shortColor = 'gray';
+        }
+
+      } else {
+        // 其他幣種 做多
+        if (ratePercent >= -0.02 && ratePercent <= 0.06) {
+          longClass = '✅ 正常（建議可交易）';
+          longColor = 'green';
+        } else if ((ratePercent > 0.06 && ratePercent <= 0.4) || (ratePercent < -0.02 && ratePercent >= -0.4)) {
+          longClass = '⚠️ 非正常（高成本區）';
+          longColor = 'orange';
+        } else if ((ratePercent > 0.4 && ratePercent <= 0.75) || (ratePercent < -0.4 && ratePercent >= -0.75)) {
+          longClass = '❗ 特殊（高風險，勿追高）';
+          longColor = 'red';
+        } else {
+          longClass = '🟡 不在定義範圍';
+          longColor = 'gray';
+        }
+
+        // 其他幣種 做空
+        if (ratePercent >= -0.02 && ratePercent <= 0.06) {
+          shortClass = '✅ 正常（建議可交易）';
+          shortColor = 'green';
+        } else if ((ratePercent > 0.06 && ratePercent <= 0.4) || (ratePercent < -0.02 && ratePercent >= -0.4)) {
+          shortClass = '⚠️ 非正常（高成本區）';
+          shortColor = 'orange';
+        } else if ((ratePercent > 0.4 && ratePercent <= 0.75) || (ratePercent < -0.4 && ratePercent >= -0.75)) {
+          shortClass = '❗ 特殊（高風險，勿追高）';
+          shortColor = 'red';
+        } else {
+          shortClass = '🟡 不在定義範圍';
+          shortColor = 'gray';
         }
       }
 
-      classificationDiv.textContent = classification;
-      classificationDiv.style.color = color;
+      // 策略說明
+      if (rate > 0) {
+        longStrategy = '⚠️ 你需付費（空方市場偏強）';
+        shortStrategy = '✅ 可收費（市場偏空）';
+      } else if (rate < 0) {
+        longStrategy = '✅ 可收費（市場偏多）';
+        shortStrategy = '⚠️ 你需付費（多方市場偏強）';
+      } else {
+        longStrategy = '🟡 中性（雙方無資金費）';
+        shortStrategy = '🟡 中性（雙方無資金費）';
+      }
+
+      longDiv.innerHTML = `💡 做多：<span style="color:${longColor}">${longClass}</span>｜<span style="color:${longColor}">${longStrategy}</span>`;
+      shortDiv.innerHTML = `💡 做空：<span style="color:${shortColor}">${shortClass}</span>｜<span style="color:${shortColor}">${shortStrategy}</span>`;
 
     } else {
       document.getElementById("funding-rate").textContent = "無資料";
-      document.getElementById("funding-rate-classification").textContent = '';
+      document.getElementById("funding-rate-long").textContent = "";
+      document.getElementById("funding-rate-short").textContent = "";
     }
   } catch (err) {
     console.error("資金費率取得錯誤：", err);
     document.getElementById("funding-rate").textContent = "錯誤";
-    document.getElementById("funding-rate-classification").textContent = '';
+    document.getElementById("funding-rate-long").textContent = "";
+    document.getElementById("funding-rate-short").textContent = "";
   }
 }
+
+
+
+
 
 
 const symbolInput = document.getElementById("symbolInput");
