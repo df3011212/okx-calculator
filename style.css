@@ -771,3 +771,46 @@ body {
   text-align: center;
   color: #34495e;
 }
+.feature-link-button {
+  display: inline-block;
+  padding: 10px;
+  margin: 6px;
+  text-align: center;
+  background-color: #fff;
+  color: #333;
+  font-weight: bold;
+  border-radius: 8px;
+  text-decoration: none;
+  border: 2px solid #ccc;
+  transition: all 0.2s ease;
+}
+.feature-link-button:hover {
+  background-color: #f0f0f0;
+  border-color: #888;
+}
+.feature-link-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  margin: 8px;
+  text-align: left;
+  background-color: #ffffff;
+  color: #222;
+  font-weight: 500;
+  font-size: 15px;
+  border-radius: 12px;
+  text-decoration: none;
+  border: 1.5px solid #ddd;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.feature-link-button:hover {
+  background-color: #f2f7ff;
+  border-color: #3399ff;
+  color: #000;
+}
