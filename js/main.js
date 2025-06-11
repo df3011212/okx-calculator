@@ -328,11 +328,22 @@ async function saveToHistory() {
   const maxLoss = document.getElementById("maxLoss").value.trim();
   const timestamp = Date.now();
 
+  // 🔍 取得使用者 IP
   const ip = await fetch('https://api.ipify.org?format=json')
     .then(res => res.json())
     .then(data => data.ip)
     .catch(() => "unknown");
 
+  // 🕒 產生時間格式名稱，例如：2025-06-11_12-20-43
+  const timeId = new Date(timestamp)
+    .toLocaleString("zh-TW", {
+      year: "numeric", month: "2-digit", day: "2-digit",
+      hour: "2-digit", minute: "2-digit", second: "2-digit",
+      hour12: false
+    })
+    .replace(/\//g, "-").replace(" ", "_").replace(/:/g, "-");
+
+  // 📦 儲存內容
   const record = {
     幣種: symbol,
     本金: capital,
@@ -357,15 +368,20 @@ async function saveToHistory() {
   localStorage.setItem("saved_history", JSON.stringify(history));
   renderSavedHistory();
 
-  // ✅ Firebase 分 IP 儲存
+  // ✅ Firestore：確保 IP document 不為空
   db.collection("orders").doc(ip).set({
     lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
   }, { merge: true });
 
-  db.collection("orders").doc(ip).collection("records").add(record)
+  // ✅ 使用時間作為 document ID 儲存資料
+  db.collection("orders")
+    .doc(ip)
+    .collection("records")
+    .doc(timeId)  // 🔧 不再用亂碼，自訂時間為 ID
+    .set(record)
     .then(() => {
-      console.log("✅ 書籤紀錄儲存成功");
-      alert("✅ 開單紀錄已儲存至書籤紀錄");
+      console.log("✅ 籤紀錄已儲存到書籤");
+      alert("✅ 書籤紀錄已儲存到書籤");
     })
     .catch(err => {
       console.error("❌ 書籤紀錄 儲存失敗", err);
