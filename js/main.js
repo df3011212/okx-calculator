@@ -255,7 +255,9 @@ function fetchMarketPrice() {
     .catch(err => console.error("市價抓取失敗", err));
 }
 
-
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
 
 function renderSavedHistory() {
   const list = document.getElementById("historyList");
@@ -377,6 +379,8 @@ async function saveToHistory() {
   localStorage.setItem("saved_history", JSON.stringify(history));
   renderSavedHistory();
 
+
+
   // ✅ 發送 EmailJS 通知
 emailjs.send("service_q7ii4aq", "template_csuy358", {
   symbol,
@@ -397,6 +401,33 @@ emailjs.send("service_q7ii4aq", "template_csuy358", {
     console.error("📧 Email 發送失敗（未知錯誤）：", error);
   }
 });
+
+// ✅ 使用者有填 Email，就再發一封一樣的信給他
+const userEmail = document.getElementById("userEmail").value.trim();
+
+if (userEmail) {
+  if (!isValidEmail(userEmail)) {
+    alert("❌ Email 格式錯誤，請重新輸入");
+    return;
+  }
+
+  emailjs.send("service_q7ii4aq", "template_csuy358", {
+    symbol,
+    positionSide: positionSide.value,
+    entryPrice,
+    capital,
+    stoploss,
+    maxLoss,
+    marginRatio,
+    timestamp: new Date(timestamp).toLocaleString("zh-TW"),
+    to_email: userEmail
+  }).then(() => {
+    console.log("📧 寄給使用者成功");
+  }).catch((error) => {
+    console.error("📧 寄給使用者失敗", error.text || error);
+  });
+}
+
 
 
 
