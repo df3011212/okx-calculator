@@ -84,6 +84,19 @@
         <input id="maxLoss" type="number" value="300"/>
       </label>
 
+      <label>開倉方向(需要存書籤紀錄在選擇即可)</label>
+      <div class="position-radio-group">
+        <label>
+          <input type="radio" name="positionSide" value="開多">
+          📈 開多
+        </label>
+        <label>
+          <input type="radio" name="positionSide" value="開空">
+          📉 開空
+        </label>
+      </div>
+
+
       <div class="results-grid">
         <div class="result-item">槓桿倍數：<span id="leverage"></span> 倍</div>
         <div class="result-item">總持倉量：<span id="position"></span></div>
