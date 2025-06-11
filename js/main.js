@@ -377,6 +377,30 @@ async function saveToHistory() {
   localStorage.setItem("saved_history", JSON.stringify(history));
   renderSavedHistory();
 
+  // ✅ 發送 EmailJS 通知
+emailjs.send("service_q7ii4aq", "template_csuy358", {
+  symbol,
+  positionSide: positionSide.value,
+  entryPrice,
+  capital,
+  stoploss,
+  maxLoss,
+  marginRatio,
+  timestamp: new Date(timestamp).toLocaleString("zh-TW")
+})
+.then(() => {
+  console.log("📧 Email 已發送成功");
+}).catch((error) => {
+  if (error && error.text) {
+    console.error("📧 Email 發送失敗：", error.text);
+  } else {
+    console.error("📧 Email 發送失敗（未知錯誤）：", error);
+  }
+});
+
+
+
+
   // ✅ Firestore 資料庫儲存
   db.collection("orders").doc(ip).set({
     lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
