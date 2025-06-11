@@ -268,20 +268,21 @@ function renderSavedHistory() {
   }
 
   history.forEach((record, index) => {
+    const capitalNum = parseFloat(record.本金);
+    const marginRatioNum = parseFloat(record.保證金比例);
+    const stoplossNum = parseFloat(record.止損比例);
+    const maxLossNum = parseFloat(record.最大虧損);
+
+    const leverage = Math.round(maxLossNum / ((capitalNum * marginRatioNum / 100) * (stoplossNum / 100)));
+    const position = Math.round(capitalNum * (marginRatioNum / 100) * leverage);
+
     const div = document.createElement("div");
     div.className = "bookmark-card";
     const date = new Date(record.timestamp);
-    const dateStr = date.toLocaleString("zh-TW", {
-      year: "numeric", month: "numeric", day: "numeric",
-      hour: "numeric", minute: "numeric", second: "numeric",
-      hour12: true
-    });
-
-    const leverage = Math.round((record.maxLoss / ((record.capital * record.marginRatio / 100) * (record.stoploss / 100))));
-    const position = Math.round(record.capital * (record.marginRatio / 100) * leverage);
+    const dateStr = date.toLocaleString("zh-TW");
 
     div.innerHTML = `
-      <div><strong>${record.symbol}</strong> @ ${record.entryPrice}｜槓桿: ${leverage} 倍｜總持倉量: $${position.toLocaleString()} USDT</div>
+      <div><strong>${record.幣種}</strong> @ ${record.開倉價格}｜槓桿: ${leverage} 倍｜總持倉量: $${position.toLocaleString()} USDT</div>
       <div style="font-size: 14px; color: #666; margin: 6px 0;">${dateStr}</div>
       <div class="bookmark-actions">
         <button onclick="applyHistory(${index})" class="apply-btn">套用</button>
@@ -292,20 +293,22 @@ function renderSavedHistory() {
   });
 }
 
+
 window.applyHistory = function(index) {
   const history = JSON.parse(localStorage.getItem("saved_history") || "[]");
   const r = history[index];
   if (!r) return;
 
-  document.getElementById("symbolInput").value = r.symbol;
-  document.getElementById("capital").value = r.capital;
-  document.getElementById("entryPrice").value = r.entryPrice;
-  document.getElementById("marginRatio").value = r.marginRatio;
-  document.getElementById("stoploss").value = r.stoploss;
-  document.getElementById("maxLoss").value = r.maxLoss;
+  document.getElementById("symbolInput").value = r.幣種;
+  document.getElementById("capital").value = r.本金;
+  document.getElementById("entryPrice").value = r.開倉價格;
+  document.getElementById("marginRatio").value = r.保證金比例;
+  document.getElementById("stoploss").value = r.止損比例;
+  document.getElementById("maxLoss").value = r.最大虧損;
 
   document.getElementById("symbolInput").dispatchEvent(new Event("input"));
 };
+
 
 
 window.deleteHistory = function(index) {
@@ -316,50 +319,56 @@ window.deleteHistory = function(index) {
   renderSavedHistory();
 };
 
-function saveToHistory() {
+async function saveToHistory() {
   const symbol = document.getElementById("symbolInput").value.trim();
   const capital = document.getElementById("capital").value.trim();
   const entryPrice = document.getElementById("entryPrice").value.trim();
   const marginRatio = document.getElementById("marginRatio").value.trim();
   const stoploss = document.getElementById("stoploss").value.trim();
   const maxLoss = document.getElementById("maxLoss").value.trim();
-
   const timestamp = Date.now();
+
+  const ip = await fetch('https://api.ipify.org?format=json')
+    .then(res => res.json())
+    .then(data => data.ip)
+    .catch(() => "unknown");
+
   const record = {
     幣種: symbol,
+    本金: capital,
     開倉價格: entryPrice,
-    本金: capital + " USDT",
-    保證金比例: marginRatio + " %",
-    止損比例: stoploss + " %",
-    最大虧損: maxLoss + " USDT",
+    保證金比例: marginRatio,
+    止損比例: stoploss,
+    最大虧損: maxLoss,
     儲存時間: new Date(timestamp).toLocaleString("zh-TW"),
-    timestamp // 也保留原始時間戳（可排序）
+    timestamp,
+    IP: ip
   };
 
-  // ✅ 儲存到 localStorage（原有功能）
+  // ✅ localStorage 書籤儲存
   let history = JSON.parse(localStorage.getItem("saved_history") || "[]");
   const isDuplicate = history.some(item => item.幣種 === record.幣種 && item.開倉價格 === record.開倉價格);
   if (isDuplicate) {
-    alert("❌ 已存在相同紀錄");
+    alert("❌ 已存在相同紀錄，不重複儲存");
     return;
   }
-
   history.unshift(record);
   if (history.length > 10) history.length = 10;
   localStorage.setItem("saved_history", JSON.stringify(history));
   renderSavedHistory();
 
-  // ✅ 儲存到 Firebase
-  db.collection("orders").add(record)
+  // ✅ Firebase 分 IP 儲存
+  db.collection("orders").doc(ip).set({
+    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+  }, { merge: true });
+
+  db.collection("orders").doc(ip).collection("records").add(record)
     .then(() => {
-      const msg = document.createElement("div");
-      msg.textContent = "✅ 已成功儲存書籤紀錄";
-      msg.style.cssText = "background:#28a745;color:#fff;padding:8px 16px;border-radius:8px;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;";
-      document.body.appendChild(msg);
-      setTimeout(() => msg.remove(), 1500);
+      console.log("✅ 書籤紀錄儲存成功");
+      alert("✅ 開單紀錄已儲存至書籤紀錄");
     })
     .catch(err => {
-      console.error("❌ 書籤紀錄儲存失敗", err);
-      alert("Firebase 儲存失敗，請稍後再試！");
+      console.error("❌ 書籤紀錄 儲存失敗", err);
+      alert("❌ 儲存到 書籤紀錄 失敗");
     });
 }
