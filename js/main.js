@@ -381,8 +381,9 @@ async function saveToHistory() {
 
 
 
-  // ✅ 發送 EmailJS 通知
-emailjs.send("service_q7ii4aq", "template_csuy358", {
+ const userEmail = document.getElementById("userEmail").value.trim();
+const myEmail = "df3011212@gmail.com"; // 你自己的信箱
+const emailParams = {
   symbol,
   positionSide: positionSide.value,
   entryPrice,
@@ -391,20 +392,21 @@ emailjs.send("service_q7ii4aq", "template_csuy358", {
   maxLoss,
   marginRatio,
   timestamp: new Date(timestamp).toLocaleString("zh-TW")
+};
+
+// ✅ 1. 先寄一封給你自己（一定會寄）
+emailjs.send("service_q7ii4aq", "template_csuy358", {
+  ...emailParams,
+  to_email: myEmail
 })
 .then(() => {
-  console.log("📧 Email 已發送成功");
-}).catch((error) => {
-  if (error && error.text) {
-    console.error("📧 Email 發送失敗：", error.text);
-  } else {
-    console.error("📧 Email 發送失敗（未知錯誤）：", error);
-  }
+  console.log("📧 Email 發送成功");
+})
+.catch((error) => {
+  console.error("📧 Email 發送失敗：", error.text || error);
 });
 
-// ✅ 使用者有填 Email，就再發一封一樣的信給他
-const userEmail = document.getElementById("userEmail").value.trim();
-
+// ✅ 2. 使用者有填信箱就再寄一封給他
 if (userEmail) {
   if (!isValidEmail(userEmail)) {
     alert("❌ Email 格式錯誤，請重新輸入");
@@ -412,21 +414,17 @@ if (userEmail) {
   }
 
   emailjs.send("service_q7ii4aq", "template_csuy358", {
-    symbol,
-    positionSide: positionSide.value,
-    entryPrice,
-    capital,
-    stoploss,
-    maxLoss,
-    marginRatio,
-    timestamp: new Date(timestamp).toLocaleString("zh-TW"),
+    ...emailParams,
     to_email: userEmail
-  }).then(() => {
-    console.log("📧 寄給使用者成功");
-  }).catch((error) => {
-    console.error("📧 寄給使用者失敗", error.text || error);
+  })
+  .then(() => {
+    console.log("📩 Email 發送成功");
+  })
+  .catch((error) => {
+    console.error("📩 Email 發送失敗", error.text || error);
   });
 }
+
 
 
 
