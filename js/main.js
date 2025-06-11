@@ -1,3 +1,23 @@
+// ✅ 初始化 Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyDY36t7W_yMQ0E7CWX2HQAs262XQmQqB3A",
+  authDomain: "okxtradingapp.firebaseapp.com",
+  projectId: "okxtradingapp",
+  storageBucket: "okxtradingapp.appspot.com",
+  messagingSenderId: "1055694692087",
+  appId: "1:1055694692087:web:83bfd47ec5c1f19f653df2",
+  measurementId: "G-QY4RMELT45"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// 匿名登入（避免需要帳號登入）
+firebase.auth().signInAnonymously().catch(console.error);
+
+
+
+
 // 啟動、綁定所有事件
 window.addEventListener("DOMContentLoaded", () => {
   loadSymbols();
@@ -304,25 +324,23 @@ function saveToHistory() {
   const stoploss = document.getElementById("stoploss").value.trim();
   const maxLoss = document.getElementById("maxLoss").value.trim();
 
+  const timestamp = Date.now();
   const record = {
-    symbol,
-    capital,
-    entryPrice,
-    marginRatio,
-    stoploss,
-    maxLoss,
-    timestamp: Date.now()
+    幣種: symbol,
+    開倉價格: entryPrice,
+    本金: capital + " USDT",
+    保證金比例: marginRatio + " %",
+    止損比例: stoploss + " %",
+    最大虧損: maxLoss + " USDT",
+    儲存時間: new Date(timestamp).toLocaleString("zh-TW"),
+    timestamp // 也保留原始時間戳（可排序）
   };
 
+  // ✅ 儲存到 localStorage（原有功能）
   let history = JSON.parse(localStorage.getItem("saved_history") || "[]");
-
-  const isDuplicate = history.some(item => item.symbol === record.symbol && item.entryPrice === record.entryPrice);
+  const isDuplicate = history.some(item => item.幣種 === record.幣種 && item.開倉價格 === record.開倉價格);
   if (isDuplicate) {
-    const msg = document.createElement("div");
-    msg.textContent = "❌ 已存在相同紀錄，不重複儲存";
-    msg.style.cssText = "background:#c00;color:#fff;padding:8px 16px;border-radius:8px;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;";
-    document.body.appendChild(msg);
-    setTimeout(() => msg.remove(), 2000);
+    alert("❌ 已存在相同紀錄");
     return;
   }
 
@@ -331,9 +349,17 @@ function saveToHistory() {
   localStorage.setItem("saved_history", JSON.stringify(history));
   renderSavedHistory();
 
-  const ok = document.createElement("div");
-  ok.textContent = "✅ 儲存紀錄成功";
-  ok.style.cssText = "background:#28a745;color:#fff;padding:8px 16px;border-radius:8px;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;";
-  document.body.appendChild(ok);
-  setTimeout(() => ok.remove(), 1500);
+  // ✅ 儲存到 Firebase
+  db.collection("orders").add(record)
+    .then(() => {
+      const msg = document.createElement("div");
+      msg.textContent = "✅ 已成功儲存書籤紀錄";
+      msg.style.cssText = "background:#28a745;color:#fff;padding:8px 16px;border-radius:8px;position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:9999;";
+      document.body.appendChild(msg);
+      setTimeout(() => msg.remove(), 1500);
+    })
+    .catch(err => {
+      console.error("❌ 書籤紀錄儲存失敗", err);
+      alert("Firebase 儲存失敗，請稍後再試！");
+    });
 }
