@@ -283,6 +283,7 @@ function renderSavedHistory() {
 
     div.innerHTML = `
       <div><strong>${record.幣種}</strong> @ ${record.開倉價格}｜槓桿: ${leverage} 倍｜總持倉量: $${position.toLocaleString()} USDT</div>
+      <div style="font-size: 14px; color: #333;">方向：${record.開倉方向}</div>
       <div style="font-size: 14px; color: #666; margin: 6px 0;">${dateStr}</div>
       <div class="bookmark-actions">
         <button onclick="applyHistory(${index})" class="apply-btn">套用</button>
@@ -326,7 +327,14 @@ async function saveToHistory() {
   const marginRatio = document.getElementById("marginRatio").value.trim();
   const stoploss = document.getElementById("stoploss").value.trim();
   const maxLoss = document.getElementById("maxLoss").value.trim();
+  const positionSide = document.querySelector('input[name="positionSide"]:checked');
   const timestamp = Date.now();
+
+  // ✅ 驗證是否選擇方向
+  if (!positionSide) {
+    alert("❌ 請選擇開倉方向（開多或開空）");
+    return;
+  }
 
   // 🔍 取得使用者 IP
   const ip = await fetch('https://api.ipify.org?format=json')
@@ -334,7 +342,7 @@ async function saveToHistory() {
     .then(data => data.ip)
     .catch(() => "unknown");
 
-  // 🕒 產生時間格式名稱，例如：2025-06-11_12-20-43
+  // 🕒 時間作為唯一識別
   const timeId = new Date(timestamp)
     .toLocaleString("zh-TW", {
       year: "numeric", month: "2-digit", day: "2-digit",
@@ -343,7 +351,7 @@ async function saveToHistory() {
     })
     .replace(/\//g, "-").replace(" ", "_").replace(/:/g, "-");
 
-  // 📦 儲存內容
+  // 📦 建立儲存紀錄物件
   const record = {
     幣種: symbol,
     本金: capital,
@@ -351,6 +359,7 @@ async function saveToHistory() {
     保證金比例: marginRatio,
     止損比例: stoploss,
     最大虧損: maxLoss,
+    開倉方向: positionSide.value,
     儲存時間: new Date(timestamp).toLocaleString("zh-TW"),
     timestamp,
     IP: ip
@@ -368,23 +377,22 @@ async function saveToHistory() {
   localStorage.setItem("saved_history", JSON.stringify(history));
   renderSavedHistory();
 
-  // ✅ Firestore：確保 IP document 不為空
+  // ✅ Firestore 資料庫儲存
   db.collection("orders").doc(ip).set({
     lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
   }, { merge: true });
 
-  // ✅ 使用時間作為 document ID 儲存資料
   db.collection("orders")
     .doc(ip)
     .collection("records")
-    .doc(timeId)  // 🔧 不再用亂碼，自訂時間為 ID
+    .doc(timeId)
     .set(record)
     .then(() => {
-      console.log("✅ 籤紀錄已儲存到書籤");
-      alert("✅ 書籤紀錄已儲存到書籤");
+      console.log("✅ 書籤紀錄已儲存");
+      alert("✅ 書籤紀錄已儲存");
     })
     .catch(err => {
       console.error("❌ 書籤紀錄 儲存失敗", err);
-      alert("❌ 儲存到 書籤紀錄 失敗");
+      alert("❌ 書籤儲存失敗");
     });
 }
